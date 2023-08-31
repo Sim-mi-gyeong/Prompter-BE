@@ -1,4 +1,4 @@
-package com.example.demo.service;
+package com.prompter.service;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.slf4j.Slf4j;

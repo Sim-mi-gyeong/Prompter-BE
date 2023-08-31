@@ -1,6 +1,7 @@
-package com.example.demo.controller;
+package com.prompter.controller;
 
-import com.example.demo.service.CrawlingService;
+import com.prompter.service.CrawlingService;
+
 import lombok.RequiredArgsConstructor;
 import org.json.JSONException;
 import org.json.JSONObject;
