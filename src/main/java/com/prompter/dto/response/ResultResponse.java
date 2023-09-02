@@ -10,7 +10,7 @@ import java.util.List;
 public class ResultResponse {
 
     private final String summaryContent;
-    private List<String> tags;
+    private String tags;
     private List<Word> words;
     private boolean isAds;
 
@@ -22,12 +22,13 @@ public class ResultResponse {
      */
 
     @Getter
+    @Builder
     public static class Word {
         private String text;
         private long number;
     }
 
-    public static ResultResponse of(String summaryContent, List<String> tags, List<Word> words, boolean isAds) {
+    public static ResultResponse of(String summaryContent, String tags, List<Word> words, boolean isAds) {
         return ResultResponse.builder()
                 .summaryContent(summaryContent)
                 .tags(tags)

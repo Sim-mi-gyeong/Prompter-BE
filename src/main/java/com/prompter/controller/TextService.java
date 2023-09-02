@@ -8,11 +8,17 @@ import com.prompter.dto.response.SummaryResponse;
 import com.prompter.external.ExternalRestful;
 import com.prompter.external.OpenAiApiSummaryResponse;
 import com.prompter.repository.SiteRepository;
+import kr.co.shineware.nlp.komoran.constant.DEFAULT_MODEL;
+import kr.co.shineware.nlp.komoran.core.Komoran;
+import kr.co.shineware.nlp.komoran.model.KomoranResult;
+import kr.co.shineware.nlp.komoran.model.Token;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.springframework.stereotype.Service;
 
+
+import java.util.*;
 
 import static com.prompter.common.Result.NOT_EXIST_URL_SITE;
 
@@ -55,12 +61,74 @@ public class TextService {
         Site site = findSiteByUrl(url);
 
         OpenAiApiSummaryResponse response = getSummaryResponse(site.getContent());
+        List<ResultResponse.Word> words = analyze(site.getContent());
 
-
-        return null;
+        return ResultResponse.builder()
+                .summaryContent(response.getSummary())
+                .tags(response.getTag())
+                .words(words)
+                .build();
     }
 
-      // 해당 url 에 맞는 크롤링 결과 리턴
+    public List<ResultResponse.Word> analyze(String content) {
+        Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
+
+        KomoranResult analyzeResultList = komoran.analyze(content);
+        System.out.println(analyzeResultList.getPlainText());
+
+        List<Token> tokenList = analyzeResultList.getTokenList();
+        for(Token token : tokenList) {
+            System.out.format("(%2d, %2d) %s/%s\n", token.getBeginIndex(),
+                    token.getEndIndex(), token.getMorph(), token.getPos());
+        }
+
+        List<String> nounList = analyzeResultList.getNouns();
+        for(String noun : nounList) {
+            System.out.println(noun);
+        }
+
+        // 여기서 getMorphesByTags 사용하면 내가원하는 형태소만 뽑아낼 수 있음
+        List<String> analyzeList = analyzeResultList.getMorphesByTags("NNP", "NNG", "NNB", "NP");
+
+        HashMap<String, Integer> listHash = new HashMap<>();
+        for (String word : analyzeList) {
+            int num = Collections.frequency(analyzeList, word);
+            log.info("word : {} , num : {}", word, num);
+            listHash.put(word, num);
+        }
+
+        sortByWordNum(listHash);
+        List<ResultResponse.Word> wordList = new ArrayList<>();
+
+        Iterator it = listHash.entrySet().iterator();
+        int cnt = 0;
+        while (it.hasNext()) {
+            cnt += 1;
+            Map.Entry<String, Integer> entry = (Map.Entry)it.next();
+//            System.out.println(entry.getKey() + " = " + entry.getValue());
+            wordList.add(
+                    ResultResponse.Word.builder()
+                            .text(entry.getKey())
+                            .number(entry.getValue())
+                            .build()
+            );
+            if (cnt == 20) {
+                break;
+            }
+        }
+        return wordList;
+    }
+
+    private void sortByWordNum(HashMap<String, Integer> map) {
+        List<Map.Entry<String, Integer>> entryList = new LinkedList<>(map.entrySet());
+        entryList.sort(Map.Entry.comparingByValue());
+        List<String> listKeySet = new ArrayList<>(map.keySet());
+        // 내림차순 정렬
+        Collections.sort(listKeySet, (value1, value2) -> (map.get(value2).compareTo(map.get(value1))));
+//        for(String key : listKeySet) {
+//            System.out.println("key : " + key + " , " + "value : " + map.get(key));
+//        }
+    }
 
     // OpenAi API 호출
     public OpenAiApiSummaryResponse getSummaryResponse(String text) {
