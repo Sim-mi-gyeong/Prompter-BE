@@ -10,10 +10,9 @@ import java.util.List;
 public class SummaryResponse {
 
     private final String summaryContent;
-//    private final String[] tags;
-    private final String tags;
+    private final List<String> tags;
 
-    public static SummaryResponse of(String summaryContent, String tags) {
+    public static SummaryResponse of(String summaryContent, List<String> tags) {
         return SummaryResponse.builder()
                 .summaryContent(summaryContent)
                 .tags(tags)

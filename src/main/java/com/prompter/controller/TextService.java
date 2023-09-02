@@ -11,7 +11,6 @@ import com.prompter.repository.SiteRepository;
 import kr.co.shineware.nlp.komoran.constant.DEFAULT_MODEL;
 import kr.co.shineware.nlp.komoran.core.Komoran;
 import kr.co.shineware.nlp.komoran.model.KomoranResult;
-import kr.co.shineware.nlp.komoran.model.Token;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
@@ -44,16 +43,7 @@ public class TextService {
         log.info("response.getText() : {}", response.getSummary());
         log.info("response.getTag() : {}", response.getTag());
 
-        String strTags = response.getTag();
-        boolean enableTagParsing = false;
-        String[] arrTags = new String[0];
-        if (strTags.contains(",")) {
-            enableTagParsing = true;
-            arrTags = strTags.split(",");
-        }
-
-//        return SummaryResponse.of(response.getText(), enableTagParsing ? arrTags : response.getTag().split("."));
-        return SummaryResponse.of(response.getSummary(), response.getTag());
+        return SummaryResponse.of(response.getSummary(), Arrays.asList(response.getTag().split(",")));
     }
 
     public ResultResponse getSummaryAndAnalyzedText(String url) throws JSONException {
@@ -63,14 +53,10 @@ public class TextService {
         OpenAiApiSummaryResponse response = getSummaryResponse(site.getContent());
         List<ResultResponse.Word> words = analyze(site.getContent());
 
-        return ResultResponse.builder()
-                .summaryContent(response.getSummary())
-                .tags(response.getTag())
-                .words(words)
-                .build();
+        return ResultResponse.of(response.getSummary(), Arrays.asList(response.getTag().split(",")), words, false);
     }
 
-    public List<ResultResponse.Word> analyze(String content) {
+    private List<ResultResponse.Word> analyze(String content) {
         Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
 
         KomoranResult analyzeResultList = komoran.analyze(content);
