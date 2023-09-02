@@ -53,7 +53,19 @@ public class TextService {
         OpenAiApiSummaryResponse response = getSummaryResponse(site.getContent());
         List<ResultResponse.Word> words = analyze(site.getContent());
 
-        return ResultResponse.of(response.getSummary(), Arrays.asList(response.getTag().split(",")), words, false);
+        return ResultResponse.of(response.getSummary(), Arrays.asList(response.getTag().split(",")), words, checkAds(site.getContent()));
+    }
+
+    /**
+     * 5회 이상 포함 시 광고로 분류
+     * 소정의 / 원고료 / 업체로부터 / 업체로
+     */
+    private boolean checkAds(String content) {
+        int cnt = 0;
+        if (content.contains("소정의") || content.contains("원고료") || content.contains("업체로") || content.contains("업체로부터")) {
+            return true;
+        }
+        return false;
     }
 
     private List<ResultResponse.Word> analyze(String content) {
