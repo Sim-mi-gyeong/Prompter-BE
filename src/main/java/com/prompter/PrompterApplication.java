@@ -9,7 +9,7 @@ public class PrompterApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PrompterApplication.class, args);
-		WebDriverManager.chromedriver().setup();
+//		WebDriverManager.chromedriver().setup();
 	}
 
 }

@@ -138,4 +138,108 @@ public class CrawlingService {
 
         return CrawlingResponse.from(sb.toString());
     }
+
+    public CrawlingResponse processNaver() throws JSONException {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("disable-gpu");
+        options.addArguments("--disable-gpu");
+        options.addArguments("lang=ko_KR");
+        options.addArguments("window-size=1920x1080");
+
+//        System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
+        WebDriverManager.chromedriver().setup();
+        WebDriver driver = new ChromeDriver(options);
+
+//        ChromeDriver driver = new ChromeDriver(options);
+
+        JSONObject info = new JSONObject();
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        String url = "https://blog.naver.com/samonimdaek/223059674471";
+
+
+        driver.get(url);
+
+        try {Thread.sleep(1000);} catch (InterruptedException e) {}
+
+        Document doc = Jsoup.parse(driver.getPageSource());
+
+        long startTime = System.currentTimeMillis();
+        Elements elements = doc.getElementsByClass("se-module se-module-text");
+        StringBuilder sb = new StringBuilder();
+        for (Element element : elements) {
+            Elements subElements = element.getElementsByClass("se-text-paragraph se-text-paragraph-align-center ");
+            for (Element subElement : subElements) {
+                Elements elementsByClass = subElement.getElementsByClass("se-fs-fs16 se-ff-system   ");
+                for (Element byClass : elementsByClass) {
+                    if (byClass.text().isEmpty()) continue;
+                        log.info("span : {}", byClass.text());
+                        sb.append(byClass.text());
+                }
+            }
+        }
+        long endTime = System.currentTimeMillis();
+
+
+        // 결과 출력
+        info.put("text", sb);
+        System.out.println(info);
+        log.info("수행 시간 : {}", (endTime - startTime) / 1000);
+
+        driver.quit();
+
+        return CrawlingResponse.from(sb.toString());
+    }
+
+    public CrawlingResponse processGoogle() throws JSONException {
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        options.addArguments("--no-sandbox");
+        options.addArguments("disable-gpu");
+        options.addArguments("--disable-gpu");
+        options.addArguments("lang=ko_KR");
+        options.addArguments("window-size=1920x1080");
+
+        WebDriverManager.chromedriver().setup();
+        WebDriver driver = new ChromeDriver(options);
+
+        JSONObject info = new JSONObject();
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        String url = "https://aimee.kr/magazine/5";
+
+
+        driver.get(url);
+
+        try {Thread.sleep(1000);} catch (InterruptedException e) {}
+
+        Document doc = Jsoup.parse(driver.getPageSource());
+
+        long startTime = System.currentTimeMillis();
+        Elements elements = doc.getElementsByClass("MagazineContentDetail__MainContents-sc-fg72qx-3 kOZBDH");
+        StringBuilder sb = new StringBuilder();
+        for (Element element : elements) {
+            Elements subElements = element.getElementsByTag("p");
+            for (Element subElement : subElements) {
+                Elements elementsByClass = subElement.getElementsByTag("span");
+                for (Element byClass : elementsByClass) {
+                    if (byClass.text().isEmpty()) continue;
+                    log.info("span : {}", byClass.text());
+                    sb.append(byClass.text());
+                }
+            }
+        }
+        long endTime = System.currentTimeMillis();
+
+
+        // 결과 출력
+        info.put("text", sb);
+        System.out.println(info);
+        log.info("수행 시간 : {}", (endTime - startTime) / 1000);
+
+        driver.quit();
+
+        return CrawlingResponse.from(sb.toString());
+    }
+
 }
