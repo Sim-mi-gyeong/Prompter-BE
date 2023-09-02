@@ -74,38 +74,28 @@ public class TextService {
         Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
 
         KomoranResult analyzeResultList = komoran.analyze(content);
-        System.out.println(analyzeResultList.getPlainText());
 
-        List<Token> tokenList = analyzeResultList.getTokenList();
-        for(Token token : tokenList) {
-            System.out.format("(%2d, %2d) %s/%s\n", token.getBeginIndex(),
-                    token.getEndIndex(), token.getMorph(), token.getPos());
-        }
-
-        List<String> nounList = analyzeResultList.getNouns();
-        for(String noun : nounList) {
-            System.out.println(noun);
-        }
-
-        // 여기서 getMorphesByTags 사용하면 내가원하는 형태소만 뽑아낼 수 있음
-        List<String> analyzeList = analyzeResultList.getMorphesByTags("NNP", "NNG", "NNB", "NP");
-
-        HashMap<String, Integer> listHash = new HashMap<>();
-        for (String word : analyzeList) {
-            int num = Collections.frequency(analyzeList, word);
+        /**
+         * getMorphesByTags() : 특정 형태소 추출 가능
+         * NN : 명사 , MAG : 일반 부사 , PA : 형용사 , PV : 동사
+         * NNB : 일반 의존 명사 , NNG : 보통명사 , NNM : 단위 의존 명사 , NNP : 고유 명사 , NP : 대명사
+         */
+        HashMap<String, Integer> nounMap = new HashMap<>();
+        List<String> nounList = analyzeResultList.getMorphesByTags("NNP", "NNG");
+        for (String word : nounList) {
+            int num = Collections.frequency(nounList, word);
             log.info("word : {} , num : {}", word, num);
-            listHash.put(word, num);
+            nounMap.put(word, num);
         }
 
-        sortByWordNum(listHash);
+        List<Map.Entry<String, Integer>> entryList = sortByWordNum(nounMap);
+        
         List<ResultResponse.Word> wordList = new ArrayList<>();
-
-        Iterator it = listHash.entrySet().iterator();
+        Iterator it = entryList.iterator();
         int cnt = 0;
         while (it.hasNext()) {
             cnt += 1;
             Map.Entry<String, Integer> entry = (Map.Entry)it.next();
-//            System.out.println(entry.getKey() + " = " + entry.getValue());
             wordList.add(
                     ResultResponse.Word.builder()
                             .text(entry.getKey())
@@ -119,15 +109,16 @@ public class TextService {
         return wordList;
     }
 
-    private void sortByWordNum(HashMap<String, Integer> map) {
-        List<Map.Entry<String, Integer>> entryList = new LinkedList<>(map.entrySet());
-        entryList.sort(Map.Entry.comparingByValue());
-        List<String> listKeySet = new ArrayList<>(map.keySet());
-        // 내림차순 정렬
-        Collections.sort(listKeySet, (value1, value2) -> (map.get(value2).compareTo(map.get(value1))));
-//        for(String key : listKeySet) {
-//            System.out.println("key : " + key + " , " + "value : " + map.get(key));
-//        }
+    private List<Map.Entry<String, Integer>> sortByWordNum(HashMap<String, Integer> map) {
+        List<Map.Entry<String, Integer>> entryList = new LinkedList<Map.Entry<String, Integer>>(map.entrySet());
+
+        Collections.sort(entryList, new Comparator<Map.Entry<String, Integer>>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
+        return entryList;
     }
 
     // OpenAi API 호출
