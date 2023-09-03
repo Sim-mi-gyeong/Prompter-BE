@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.prompter.common.Result.NOT_EXIST_URL_SITE;
 
@@ -85,11 +86,15 @@ public class TextService {
          */
         HashMap<String, Integer> nounMap = new HashMap<>();
         List<String> nounList = analyzeResultList.getMorphesByTags("NNP", "NNG");
-        for (String word : nounList) {
-            int num = Collections.frequency(nounList, word);
-            log.info("word : {} , num : {}", word, num);
-            nounMap.put(word, num);
-        }
+        Stream<String> streamNounList = nounList.stream();
+        streamNounList
+                .forEach(
+                       word -> {
+                           int num = Collections.frequency(nounList, word);
+//                           log.info("word : {} , num : {}", word, num);
+                           nounMap.put(word, num);
+                       }
+                );
 
         List<Map.Entry<String, Integer>> entryList = sortByWordNum(nounMap);
         
