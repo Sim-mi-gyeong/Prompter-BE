@@ -14,6 +14,7 @@ import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
@@ -37,12 +38,7 @@ public class TextService {
     public SummaryResponse getSummaryText(String url) throws JSONException {
 
         Site site = findSiteByUrl(url);
-        log.info("url : {}", url);
-        log.info("content : {}", site.getContent());
         OpenAiApiSummaryResponse response = getSummaryResponse(site.getContent());
-
-        log.info("response.getText() : {}", response.getSummary());
-        log.info("response.getTag() : {}", response.getTag());
 
         return SummaryResponse.of(response.getSummary(), Arrays.asList(response.getTag().split(",")));
     }
@@ -53,8 +49,17 @@ public class TextService {
 
         OpenAiApiSummaryResponse response = getSummaryResponse(site.getContent());
         List<ResultResponse.Word> words = analyze(site.getContent());
+        boolean classifyAdsYn = classifyAdsYn(site.getContent());
 
-        return ResultResponse.of(response.getSummary(), Arrays.asList(response.getTag().split(",")), words, checkAds(site.getContent()));
+        return ResultResponse.of(response.getSummary(), Arrays.asList(response.getTag().split(",")), words, classifyAdsYn);
+    }
+
+    @Async("sampleExecutor")
+    public boolean classifyAdsYn(String content) {
+        boolean checkAdsYn = false;
+        checkAdsYn = checkAdsByOpenAiApi(content);
+        checkAdsYn = checkAds(content);
+        return checkAdsYn;
     }
 
     /**
@@ -70,11 +75,13 @@ public class TextService {
     }
 
     // 광고 분류 API 호출
+//    @Async
     private boolean checkAdsByOpenAiApi(String content) {
         return externalRestful.checkAds(content).getAd().equals("O");
     }
 
-    private List<ResultResponse.Word> analyze(String content) {
+    @Async("sampleExecutor")
+    public List<ResultResponse.Word> analyze(String content) {
         Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
 
         KomoranResult analyzeResultList = komoran.analyze(content);
@@ -130,6 +137,7 @@ public class TextService {
     }
 
     // OpenAi API 호출
+    @Async("sampleExecutor")
     public OpenAiApiSummaryResponse getSummaryResponse(String text) {
         return externalRestful.getTextSummary(text);
     }
