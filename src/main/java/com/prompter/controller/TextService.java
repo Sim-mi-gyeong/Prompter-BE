@@ -68,6 +68,11 @@ public class TextService {
         return false;
     }
 
+    // 광고 분류 API 호출
+    private boolean checkAdsByOpenAiApi(String content) {
+        return externalRestful.checkAds(content).getAd().equals("O");
+    }
+
     private List<ResultResponse.Word> analyze(String content) {
         Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
 

@@ -11,7 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 @RequiredArgsConstructor
 public class ExternalRestful {
 
-//    private final WebClient externalApiWebClient;
     private final WebClient openAiApiWebClient;
 
     public OpenAiApiSummaryResponse getTextSummary(String text) {
@@ -21,8 +20,18 @@ public class ExternalRestful {
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(OpenAiApiSummaryResponse.class);
+        return result.block();
+    }
+
+    public OpenAiApiClassifyResponse checkAds(String text) {
+        var result = openAiApiWebClient.post()
+                .uri("/adclassify")
+                .bodyValue(OpenAiApiSummaryRequest.from(text))
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(OpenAiApiClassifyResponse.class);
 //                .exchangeToMono(clientResponse -> {
-//                    return clientResponse.bodyToMono(SummaryResponse.class);
+//                    return clientResponse.bodyToMono(Boolean.class);
 //                });
         return result.block();
     }
