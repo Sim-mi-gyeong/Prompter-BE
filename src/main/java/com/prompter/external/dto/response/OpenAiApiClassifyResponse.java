@@ -1,4 +1,4 @@
-package com.prompter.external;
+package com.prompter.external.dto.response;
 
 import lombok.Getter;
 
