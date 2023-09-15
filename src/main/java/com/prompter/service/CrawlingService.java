@@ -2,6 +2,7 @@ package com.prompter.service;
 
 import com.prompter.dto.response.CrawlingResponse;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,24 +15,63 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.stereotype.Service;
-
+import org.springframework.util.ObjectUtils;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class CrawlingService {
 
-    public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
-//    public static String WEB_DRIVER_PATH = "chromedriver.exe";
-    private static String WEB_DRIVER_PATH = "/Users/simmigyeong/Downloads/demo/src/main/java/com/example/demo/service/chromedriver.exe";
+    private final WebDriver driver;
 
-//    void setupChromeDriver() {
-//        WebDriverManager.chromedriver().setup();
-//        driver = new ChromeDriver();
-//        options();
-//    }
-//    void options() {
-//        driver.manage().window().maximize();
-//    }
+    public CrawlingResponse process(String url) throws JSONException {;
+
+        JSONObject info = new JSONObject();
+        // JavascriptExecutor js = (JavascriptExecutor) driver;
+        // String url = "https://wannabeguru.tistory.com/entry/%EC%B1%97GPT-%ED%99%9C%EC%9A%A9%ED%95%B4%EC%84%9C-%EC%B7%A8%EC%97%85%ED%95%98%EB%8A%94-%EB%B2%95";
+
+        driver.get(url);
+
+        try {Thread.sleep(500);} catch (InterruptedException e) {}
+
+        // 현재 페이지의 소스코드 가져오기
+        Document doc = Jsoup.parse(driver.getPageSource());
+
+        long startTime = System.currentTimeMillis();
+        Elements elements = doc.getElementsByClass("contents_style");
+
+        StringBuilder sb = new StringBuilder();
+//        doc.getAllElements().forEach(
+//             element -> {
+//                 if (!ObjectUtils.isEmpty(element.getElementsByTag("p"))) {
+//                     for (Element p : element.getElementsByTag("p")) {
+//                         if(p.text().isEmpty()) continue;
+//                         log.info("p :{}", p.text());
+//                         sb.append(p.text());
+//                     }
+//                 }
+//             }
+//             );
+
+        for (Element element : elements) {
+            for (Element p : element.getElementsByTag("p")) {
+                if (p.text().isEmpty()) continue;
+//                log.info("p : {}", p.text());
+                sb.append(p.text());
+            }
+        }
+        long endTime = System.currentTimeMillis();
+
+
+        // 결과 출력
+        info.put("text", sb);
+        System.out.println(info);
+        log.info("수행 시간 : {}", (endTime - startTime) / 1000);
+
+        // driver.quit();
+
+        return CrawlingResponse.from(sb.toString());
+    }
 
     public JSONObject process1() throws JSONException {
         ChromeOptions options = new ChromeOptions();
@@ -112,7 +152,7 @@ public class CrawlingService {
 
         driver.get(url);
 
-        try {Thread.sleep(1000);} catch (InterruptedException e) {}
+        try {Thread.sleep(500);} catch (InterruptedException e) {}
 
         Document doc = Jsoup.parse(driver.getPageSource());
 
