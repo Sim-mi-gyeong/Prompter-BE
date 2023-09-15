@@ -27,8 +27,8 @@ public class CrawlingController {
     private final TextService textService;
 
     @GetMapping("/test")
-    public CustomResponseEntity<CrawlingResponse> testCrawling() throws JSONException {
-        return CustomResponseEntity.success(crawlingService.process2());
+    public CustomResponseEntity<CrawlingResponse> testCrawling(@RequestParam(value = "url") String url) throws JSONException {
+        return CustomResponseEntity.success(crawlingService.process(url));
     }
 
     @GetMapping("/naver")
