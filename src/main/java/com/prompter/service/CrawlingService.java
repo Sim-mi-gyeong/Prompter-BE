@@ -24,9 +24,6 @@ public class CrawlingService {
 
     private final WebDriver driver;
 
-    public static String WEB_DRIVER_ID = "webdriver.chrome.driver";
-    private static String WEB_DRIVER_PATH = "/Users/simmigyeong/Downloads/demo/src/main/java/com/example/demo/service/chromedriver.exe";
-
     public CrawlingResponse process(String url) throws JSONException {;
 
         JSONObject info = new JSONObject();
@@ -43,25 +40,23 @@ public class CrawlingService {
         long startTime = System.currentTimeMillis();
         Elements elements = doc.getElementsByClass("contents_style");
 
-
         StringBuilder sb = new StringBuilder();
-        // doc.getAllElements().forEach(
-        //     element -> {
-        //         if (!ObjectUtils.isEmpty(element.getElementsByTag("p"))) {
-        //             for (Element p : element.getElementsByTag("p")) {
-        //                 if(p.text().isEmpty()) continue;
-        //                 log.info("p :{}", p.text());
-        //                 sb.append(p.text());
-        //             }
-        //         }
-        //     }
-        // );
+//        doc.getAllElements().forEach(
+//             element -> {
+//                 if (!ObjectUtils.isEmpty(element.getElementsByTag("p"))) {
+//                     for (Element p : element.getElementsByTag("p")) {
+//                         if(p.text().isEmpty()) continue;
+//                         log.info("p :{}", p.text());
+//                         sb.append(p.text());
+//                     }
+//                 }
+//             }
+//             );
 
-        // StringBuilder sb = new StringBuilder();
         for (Element element : elements) {
             for (Element p : element.getElementsByTag("p")) {
                 if (p.text().isEmpty()) continue;
-                log.info("p : {}", p.text());
+//                log.info("p : {}", p.text());
                 sb.append(p.text());
             }
         }
@@ -157,7 +152,7 @@ public class CrawlingService {
 
         driver.get(url);
 
-        try {Thread.sleep(1000);} catch (InterruptedException e) {}
+        try {Thread.sleep(500);} catch (InterruptedException e) {}
 
         Document doc = Jsoup.parse(driver.getPageSource());
 

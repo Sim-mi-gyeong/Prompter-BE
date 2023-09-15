@@ -22,13 +22,13 @@ public class ExternalRestful {
 
     private final WebClient openAiApiWebClient;
 
-    public OpenAiApiSummaryResponse getTextSummary(String text) {
+    public String getTextSummary(String text) {
         var result = openAiApiWebClient.post()
                 .uri("/summary")
                 .bodyValue(OpenAiApiSummaryRequest.from(text))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(OpenAiApiSummaryResponse.class);
+                .bodyToMono(String.class);
         return result.block();
     }
 

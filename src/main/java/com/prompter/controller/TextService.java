@@ -43,9 +43,8 @@ public class TextService {
     public SummaryResponse getSummaryText(String url) throws JSONException {
 
         Site site = findSiteByUrl(url);
-        OpenAiApiSummaryResponse response = getSummaryResponse(site.getContent());
 
-        return SummaryResponse.of(response.getSummary(), Arrays.asList(getTagResponse(site.getContent()).getTag().split(",")));
+        return SummaryResponse.of(getSummaryResponse(site.getContent()), Arrays.asList(getTagResponse(site.getContent()).getTag().split(",")));
     }
 
     public SummaryResponse getSummaryTextByStream(String url) throws JSONException, JsonProcessingException {
@@ -135,11 +134,11 @@ public class TextService {
 
         Site site = findSiteByUrl(url);
 
-        OpenAiApiSummaryResponse response = getSummaryResponse(site.getContent());
+        String summary = getSummaryResponse(site.getContent());
         // List<ResultResponse.Word> words = analyze(site.getContent());
         boolean classifyAdsYn = classifyAdsYn(site.getContent());
 
-        return ResultResponse.of(response.getSummary(), Arrays.asList(getTagResponse(site.getContent()).getTag().split(",")), null, classifyAdsYn);
+        return ResultResponse.of(summary, Arrays.asList(getTagResponse(site.getContent()).getTag().split(",")), null, classifyAdsYn);
     }
 
     @Async("sampleExecutor")
@@ -163,7 +162,7 @@ public class TextService {
     }
 
     // 광고 분류 API 호출
-//    @Async
+    @Async("sampleExecutor")
     private boolean checkAdsByOpenAiApi(String content) {
         return externalRestful.checkAds(content).getAd().equals("O");
     }
@@ -226,7 +225,7 @@ public class TextService {
 
     // OpenAi API 호출
     @Async("sampleExecutor")
-    public OpenAiApiSummaryResponse getSummaryResponse(String text) {
+    public String getSummaryResponse(String text) {
         return externalRestful.getTextSummary(text);
     }
 

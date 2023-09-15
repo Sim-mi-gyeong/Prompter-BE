@@ -14,9 +14,9 @@ public class ChromeDriverContext {
 
 	private WebDriver driver;
 	private static final Logger logger = LoggerFactory.getLogger(ChromeDriverContext.class);
-	// private static final String CHROME_DRIVER_PATH = "/usr/bin/chromedriver";
-	// /Users/smegyeong/Documents/project/Prompter-BE/chromedriver
-	private static final String CHROME_DRIVER_PATH = "/Users/smegyeong/Documents/project/Prompter-BE/chromedriver";
+	 private static final String CHROME_DRIVER_PATH = "/usr/bin/chromedriver";
+//	private static final String CHROME_DRIVER_PATH = "/Users/smegyeong/Documents/project/Prompter-BE/chromedriver";
+//	private static final String CHROME_DRIVER_PATH = "/Users/simmigyeong/Documents/GitHub/Prompter-BE/chromedriver";
 
 	@Bean
 	public WebDriver driver() {
