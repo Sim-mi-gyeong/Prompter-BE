@@ -16,12 +16,10 @@ import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import org.json.JSONException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -55,51 +53,23 @@ public class TextService {
         return SummaryResponse.of(Objects.requireNonNull(response.blockFirst()).getSummary(), null);
     }
 
-    public Flux<SummaryResponse> getSummaryTextByStream2(String url) throws JSONException, JsonProcessingException {
+//    public Flux<SummaryResponse> getSummaryTextByStream2(String url) throws JSONException, JsonProcessingException {
+//
+//        Site site = findSiteByUrl(url);
+//
+//        return externalRestful.getTextSummaryByStream2(site.getContent())
+//            .flatMap(summaryResponse -> {
+//                if (ObjectUtils.isEmpty(summaryResponse.getSummary())) {
+//                    log.info("text : {}", summaryResponse.getSummary());
+//                    // return Flux.just(SummaryResponse.of("", null));
+//                } else {
+//                    log.info("text : {}", summaryResponse.getSummary());
+//                }
+//                return Flux.just(SummaryResponse.of(summaryResponse.getSummary(), null));
+//            });
+//
+//    }
 
-        Site site = findSiteByUrl(url);
-
-        return externalRestful.getTextSummaryByStream2(site.getContent())
-            .flatMap(summaryResponse -> {
-                if (ObjectUtils.isEmpty(summaryResponse.getSummary())) {
-                    log.info("text : {}", summaryResponse.getSummary());
-                    // return Flux.just(SummaryResponse.of("", null));
-                } else {
-                    log.info("text : {}", summaryResponse.getSummary());
-                }
-                return Flux.just(SummaryResponse.of(summaryResponse.getSummary(), null));
-            });
-
-    }
-
-    /*
-    @Override
-	public Mono<ContentsControlResponse> get(String ppsn, ImsProfileInfo imsProfileInfo, Country country, String requestedFrom) {
-		return profileCoreRestful.getContentsControl(ppsn)
-			.flatMap(contentsControlResponse -> {
-				if (contentsControlResponse.isUseParentEmail()) {
-					return siisRestful.get(contentsControlResponse.getEmailHashKey())
-						.flatMap(siisResponse ->
-							Mono.just(ContentsControlResponse.of(contentsControlResponse, siisResponse.getContent(), imsProfileInfo, requestedFrom)));
-				}
-
-				return Mono.just(ContentsControlResponse.of(contentsControlResponse, imsProfileInfo));
-			})
-			.onErrorResume(
-				ProfileException.class,
-				throwable -> {
-					if (Result.NOT_FOUND_CONTENTS_CONTROL.equals(throwable.getResult())) {
-						return profileCoreRestful.createContentsControl(
-							new ProfileCoreContentsControlCreateRequest(ppsn,
-								ContentsControlDefaultType.of(imsProfileInfo.determineAgeStatus(), country.getCountryCodeOrDefaultCountryCode())))
-							.flatMap(createResponse -> Mono.just(ContentsControlResponse.of(createResponse, imsProfileInfo)));
-					}
-
-					return Mono.error(new ProfileException(Result.FAIL));
-				}
-			);
-	}
-     */
 
     /*
     @ContentsControl(access = AgeStatusType.CHILD)
@@ -130,15 +100,46 @@ public class TextService {
 	}
      */
 
+/*
+    @Override
+	public Mono<ContentsControlResponse> get(String ppsn, ImsProfileInfo imsProfileInfo, Country country, String requestedFrom) {
+		return profileCoreRestful.getContentsControl(ppsn)
+			.flatMap(contentsControlResponse -> {
+				if (contentsControlResponse.isUseParentEmail()) {
+					return siisRestful.get(contentsControlResponse.getEmailHashKey())
+						.flatMap(siisResponse ->
+							Mono.just(ContentsControlResponse.of(contentsControlResponse, siisResponse.getContent(), imsProfileInfo, requestedFrom)));
+				}
+
+				return Mono.just(ContentsControlResponse.of(contentsControlResponse, imsProfileInfo));
+			})
+			.onErrorResume(
+				ProfileException.class,
+				throwable -> {
+					if (Result.NOT_FOUND_CONTENTS_CONTROL.equals(throwable.getResult())) {
+						return profileCoreRestful.createContentsControl(
+							new ProfileCoreContentsControlCreateRequest(ppsn,
+								ContentsControlDefaultType.of(imsProfileInfo.determineAgeStatus(), country.getCountryCodeOrDefaultCountryCode())))
+							.flatMap(createResponse -> Mono.just(ContentsControlResponse.of(createResponse, imsProfileInfo)));
+					}
+
+					return Mono.error(new ProfileException(Result.FAIL));
+				}
+			);
+	}
+ */
+
     public ResultResponse getSummaryAndAnalyzedText(String url) throws JSONException {
 
         Site site = findSiteByUrl(url);
 
         String summary = getSummaryResponse(site.getContent());
-        // List<ResultResponse.Word> words = analyze(site.getContent());
+        String[] tags = getTagResponse(site.getContent()).getTag().split(",");
         boolean classifyAdsYn = classifyAdsYn(site.getContent());
 
-        return ResultResponse.of(summary, Arrays.asList(getTagResponse(site.getContent()).getTag().split(",")), null, classifyAdsYn);
+        return ResultResponse.of(
+                summary, Arrays.asList(tags), null, classifyAdsYn
+            );
     }
 
     @Async("sampleExecutor")
@@ -164,10 +165,10 @@ public class TextService {
     // 광고 분류 API 호출
     @Async("sampleExecutor")
     private boolean checkAdsByOpenAiApi(String content) {
-        return externalRestful.checkAds(content).getAd().equals("O");
+        return Objects.equals(Objects.requireNonNull(externalRestful.checkAds(content).getAd()), "O");
     }
 
-    @Async("sampleExecutor")
+//    @Async("sampleExecutor")
     public List<ResultResponse.Word> analyze(String content) {
         Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
 
@@ -232,11 +233,6 @@ public class TextService {
     @Async("sampleExecutor")
     public Flux<OpenAiApiSummaryResponse> getSummaryResponseByStream(String text) throws JsonProcessingException {
         return externalRestful.getTextSummaryByStream(text);
-    }
-
-    @Async("sampleExecutor")
-    public Flux<OpenAiApiSummaryResponse> getSummaryResponseByStream2(String text) throws JsonProcessingException {
-        return externalRestful.getTextSummaryByStream2(text);
     }
 
     @Async("sampleExecutor")

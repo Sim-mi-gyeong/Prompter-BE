@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
+//@Configuration
 public class ChromeDriverContext {
 
 	private WebDriver driver;
 	private static final Logger logger = LoggerFactory.getLogger(ChromeDriverContext.class);
-	 private static final String CHROME_DRIVER_PATH = "/usr/bin/chromedriver";
+	 private static final String CHROME_DRIVER_PATH = "./usr/bin/chromedriver";
 //	private static final String CHROME_DRIVER_PATH = "/Users/smegyeong/Documents/project/Prompter-BE/chromedriver";
 //	private static final String CHROME_DRIVER_PATH = "/Users/simmigyeong/Documents/GitHub/Prompter-BE/chromedriver";
 
@@ -56,7 +56,6 @@ public class ChromeDriverContext {
 
 		return driver;
 	}
-
 
 	// @Bean
 	// public WebDriver setupChromeDriver() throws Exception {

@@ -23,13 +23,12 @@ public class ExternalRestful {
     private final WebClient openAiApiWebClient;
 
     public String getTextSummary(String text) {
-        var result = openAiApiWebClient.post()
+        return openAiApiWebClient.post()
                 .uri("/summary")
                 .bodyValue(OpenAiApiSummaryRequest.from(text))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(String.class);
-        return result.block();
+                .bodyToMono(String.class).block();
     }
 
     public Flux<OpenAiApiSummaryResponse> getTextSummaryByStream(String text) throws JsonProcessingException {
@@ -41,15 +40,6 @@ public class ExternalRestful {
             .bodyToFlux(OpenAiApiSummaryResponse.class);
 
         return streamText;
-    }
-
-    public Flux<OpenAiApiSummaryResponse> getTextSummaryByStream2(String text) throws JsonProcessingException {
-        return openAiApiWebClient.post()
-            .uri("/summary")
-            .bodyValue(OpenAiApiSummaryRequest.from(text))
-            .accept(MediaType.TEXT_EVENT_STREAM)
-            .retrieve()
-            .bodyToFlux(OpenAiApiSummaryResponse.class);
     }
 
     /*
@@ -73,25 +63,20 @@ public class ExternalRestful {
      */
 
     public OpenAiApiTagResponse getTags(String text) {
-        var result = openAiApiWebClient.post()
+        return openAiApiWebClient.post()
             .uri("/tagging")
             .bodyValue(OpenAiApiSummaryRequest.from(text))
             .accept(MediaType.APPLICATION_JSON)
             .retrieve()
-            .bodyToMono(OpenAiApiTagResponse.class);
-        return result.block();
+            .bodyToMono(OpenAiApiTagResponse.class).block();
     }
 
     public OpenAiApiClassifyResponse checkAds(String text) {
-        var result = openAiApiWebClient.post()
+        return openAiApiWebClient.post()
                 .uri("/adclassify")
                 .bodyValue(OpenAiApiSummaryRequest.from(text))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(OpenAiApiClassifyResponse.class);
-//                .exchangeToMono(clientResponse -> {
-//                    return clientResponse.bodyToMono(Boolean.class);
-//                });
-        return result.block();
+                .bodyToMono(OpenAiApiClassifyResponse.class).block();
     }
 }
