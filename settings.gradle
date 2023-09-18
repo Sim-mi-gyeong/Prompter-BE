@@ -1,1 +1,6 @@
 rootProject.name = 'prompter'
+include 'Api'
+include 'Common'
+include 'Domain'
+include 'Infra'
+
