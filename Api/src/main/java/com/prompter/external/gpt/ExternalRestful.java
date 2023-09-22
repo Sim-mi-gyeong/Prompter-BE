@@ -1,5 +1,6 @@
 package com.prompter.external.gpt;
 
+import com.prompter.external.gpt.dto.request.OpenAiApiVideoSummaryRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.prompter.external.gpt.dto.request.OpenAiApiSummaryRequest;
+import com.prompter.external.gpt.dto.request.OpenAiApiTextSummaryRequest;
 import com.prompter.external.gpt.dto.response.OpenAiApiClassifyResponse;
 import com.prompter.external.gpt.dto.response.OpenAiApiSummaryResponse;
 import com.prompter.external.gpt.dto.response.OpenAiApiTagResponse;
@@ -30,7 +31,7 @@ public class ExternalRestful {
                 .build()
                 .post()
                 .uri("/summary")
-                .bodyValue(OpenAiApiSummaryRequest.of(text, type))
+                .bodyValue(OpenAiApiTextSummaryRequest.of(text, type))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class).block();
@@ -42,7 +43,7 @@ public class ExternalRestful {
                 .build()
                 .post()
                 .uri("/summary")
-                .bodyValue(OpenAiApiSummaryRequest.of(text, type))
+                .bodyValue(OpenAiApiTextSummaryRequest.of(text, type))
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(OpenAiApiSummaryResponse.class);
@@ -76,7 +77,7 @@ public class ExternalRestful {
                 .build()
                 .post()
                 .uri("/tagging")
-                .bodyValue(OpenAiApiSummaryRequest.of(text, type))
+                .bodyValue(OpenAiApiTextSummaryRequest.of(text, type))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(OpenAiApiTagResponse.class).block();
@@ -88,7 +89,7 @@ public class ExternalRestful {
                 .build()
                 .post()
                 .uri("/adclassify")
-                .bodyValue(OpenAiApiSummaryRequest.of(text, type))
+                .bodyValue(OpenAiApiTextSummaryRequest.of(text, type))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(OpenAiApiClassifyResponse.class).block();
@@ -97,4 +98,39 @@ public class ExternalRestful {
     /**
      * 동영상 관련
      */
+    public String getVideoSummary(String url, int type) {
+        return openAiApiWebClient
+                .mutate()
+                .build()
+                .post()
+                .uri("/summarylink")
+                .bodyValue(OpenAiApiVideoSummaryRequest.of(url, type))
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(String.class).block();
+    }
+
+    public OpenAiApiTagResponse getVideoTags(String url, int type) {
+        return openAiApiWebClient
+                .mutate()
+                .build()
+                .post()
+                .uri("/tagginglink")
+                .bodyValue(OpenAiApiVideoSummaryRequest.of(url, type))
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(OpenAiApiTagResponse.class).block();
+    }
+
+    public OpenAiApiClassifyResponse checkVideoAds(String url, int type) {
+        return openAiApiWebClient
+                .mutate()
+                .build()
+                .post()
+                .uri("/adclassifylink")
+                .bodyValue(OpenAiApiVideoSummaryRequest.of(url, type))
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(OpenAiApiClassifyResponse.class).block();
+    }
 }
