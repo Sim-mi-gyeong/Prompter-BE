@@ -35,17 +35,17 @@ public class TextService {
         return CrawlingResponse.from(findSiteByUrl(url).getContent());
     }
 
-    public SummaryResponse getSummaryText(String url) throws JSONException {
+    public SummaryResponse getSummaryText(String url, int type) throws JSONException {
 
         Site site = findSiteByUrl(url);
 
-        return SummaryResponse.of(getSummaryResponse(site.getContent()), Arrays.asList(getTagResponse(site.getContent()).getTag().split(",")));
+        return SummaryResponse.of(getSummaryResponse(site.getContent(), type), Arrays.asList(getTagResponse(site.getContent(), type).getTag().split(",")));
     }
 
-    public SummaryResponse getSummaryTextByStream(String url) throws JSONException, JsonProcessingException {
+    public SummaryResponse getSummaryTextByStream(String url, int type) throws JSONException, JsonProcessingException {
 
         Site site = findSiteByUrl(url);
-        Flux<OpenAiApiSummaryResponse> response = getSummaryResponseByStream(site.getContent());
+        Flux<OpenAiApiSummaryResponse> response = getSummaryResponseByStream(site.getContent(), type);
 
         return SummaryResponse.of(Objects.requireNonNull(response.blockFirst()).getSummary(), null);
     }
@@ -126,13 +126,13 @@ public class TextService {
 	}
  */
 
-    public ResultResponse getSummaryAndAnalyzedText(String url) throws JSONException {
+    public ResultResponse getSummaryAndAnalyzedText(String url, int type) throws JSONException {
 
         Site site = findSiteByUrl(url);
 
-        String summary = getSummaryResponse(site.getContent());
-        String[] tags = getTagResponse(site.getContent()).getTag().split(",");
-        boolean classifyAdsYn = classifyAdsYn(site.getContent());
+        String summary = getSummaryResponse(site.getContent(), type);
+        String[] tags = getTagResponse(site.getContent(), type).getTag().split(",");
+        boolean classifyAdsYn = classifyAdsYn(site.getContent(), type);
 
         return ResultResponse.of(
                 summary, Arrays.asList(tags), null, classifyAdsYn
@@ -140,9 +140,9 @@ public class TextService {
     }
 
     @Async("sampleExecutor")
-    public boolean classifyAdsYn(String content) {
+    public boolean classifyAdsYn(String content, int type) {
         boolean checkAdsYn = false;
-        checkAdsYn = checkAdsByOpenAiApi(content);
+        checkAdsYn = checkAdsByOpenAiApi(content, type);
         checkAdsYn = checkAds(content);
         return checkAdsYn;
     }
@@ -161,8 +161,8 @@ public class TextService {
 
     // 광고 분류 API 호출
     @Async("sampleExecutor")
-    private boolean checkAdsByOpenAiApi(String content) {
-        return Objects.equals(Objects.requireNonNull(externalRestful.checkAds(content).getAd()), "O");
+    private boolean checkAdsByOpenAiApi(String content, int type) {
+        return Objects.equals(Objects.requireNonNull(externalRestful.checkAds(content, type).getAd()), "O");
     }
 
 //    @Async("sampleExecutor")
@@ -223,18 +223,18 @@ public class TextService {
 
     // OpenAi API 호출
     @Async("sampleExecutor")
-    public String getSummaryResponse(String text) {
-        return externalRestful.getTextSummary(text);
+    public String getSummaryResponse(String text, int type) {
+        return externalRestful.getTextSummary(text, type);
     }
 
     @Async("sampleExecutor")
-    public Flux<OpenAiApiSummaryResponse> getSummaryResponseByStream(String text) throws JsonProcessingException {
-        return externalRestful.getTextSummaryByStream(text);
+    public Flux<OpenAiApiSummaryResponse> getSummaryResponseByStream(String text, int type) throws JsonProcessingException {
+        return externalRestful.getTextSummaryByStream(text, type);
     }
 
     @Async("sampleExecutor")
-    public OpenAiApiTagResponse getTagResponse(String text) {
-        return externalRestful.getTags(text);
+    public OpenAiApiTagResponse getTagResponse(String text, int type) {
+        return externalRestful.getTags(text, type);
     }
 
     public String getContent(String url) {

@@ -8,8 +8,9 @@ import lombok.Getter;
 public class OpenAiApiSummaryRequest {
 
     private String text;
+    private int type;
 
-    public static OpenAiApiSummaryRequest from(String text) {
-        return OpenAiApiSummaryRequest.builder().text(text).build();
+    public static OpenAiApiSummaryRequest of(String text, int type) {
+        return OpenAiApiSummaryRequest.builder().text(text).type(type).build();
     }
 }

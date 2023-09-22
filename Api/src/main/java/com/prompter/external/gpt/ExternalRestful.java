@@ -21,25 +21,28 @@ public class ExternalRestful {
 
     private final WebClient openAiApiWebClient;
 
-    public String getTextSummary(String text) {
+    /**
+     * 텍스트 관련
+     */
+    public String getTextSummary(String text, int type) {
         return openAiApiWebClient
                 .mutate()
                 .build()
                 .post()
                 .uri("/summary")
-                .bodyValue(OpenAiApiSummaryRequest.from(text))
+                .bodyValue(OpenAiApiSummaryRequest.of(text, type))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class).block();
     }
 
-    public Flux<OpenAiApiSummaryResponse> getTextSummaryByStream(String text) throws JsonProcessingException {
+    public Flux<OpenAiApiSummaryResponse> getTextSummaryByStream(String text, int type) throws JsonProcessingException {
         Flux<OpenAiApiSummaryResponse> streamText = openAiApiWebClient
                 .mutate()
                 .build()
                 .post()
                 .uri("/summary")
-                .bodyValue(OpenAiApiSummaryRequest.from(text))
+                .bodyValue(OpenAiApiSummaryRequest.of(text, type))
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(OpenAiApiSummaryResponse.class);
@@ -67,27 +70,31 @@ public class ExternalRestful {
 	}
      */
 
-    public OpenAiApiTagResponse getTags(String text) {
+    public OpenAiApiTagResponse getTags(String text, int type) {
         return openAiApiWebClient
                 .mutate()
                 .build()
                 .post()
                 .uri("/tagging")
-                .bodyValue(OpenAiApiSummaryRequest.from(text))
+                .bodyValue(OpenAiApiSummaryRequest.of(text, type))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(OpenAiApiTagResponse.class).block();
     }
 
-    public OpenAiApiClassifyResponse checkAds(String text) {
+    public OpenAiApiClassifyResponse checkAds(String text, int type) {
         return openAiApiWebClient
                 .mutate()
                 .build()
                 .post()
                 .uri("/adclassify")
-                .bodyValue(OpenAiApiSummaryRequest.from(text))
+                .bodyValue(OpenAiApiSummaryRequest.of(text, type))
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(OpenAiApiClassifyResponse.class).block();
     }
+
+    /**
+     * 동영상 관련
+     */
 }

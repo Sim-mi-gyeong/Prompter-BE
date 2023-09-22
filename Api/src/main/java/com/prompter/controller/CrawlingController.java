@@ -51,8 +51,9 @@ public class CrawlingController {
      * URL 에 해당하는 사이트 텍스트 내용 요약 결과
      */
     @GetMapping("/summary")
-    public CustomResponseEntity<SummaryResponse> getSummaryText(@RequestParam(value = "url") String url) throws JSONException {
-        return CustomResponseEntity.success(textService.getSummaryText(url));
+    public CustomResponseEntity<SummaryResponse> getSummaryText(
+            @RequestParam(value = "url") String url, @RequestParam(value = "type") int type) throws JSONException {
+        return CustomResponseEntity.success(textService.getSummaryText(url, type));
     }
 
     /*
@@ -89,7 +90,8 @@ public class CrawlingController {
      * @return
      */
     @GetMapping("/result")
-    public CustomResponseEntity<ResultResponse> getSummaryAndAnalyzedText(@RequestParam(value = "url") String url) throws JSONException {
-        return CustomResponseEntity.success(textService.getSummaryAndAnalyzedText(url));
+    public CustomResponseEntity<ResultResponse> getSummaryAndAnalyzedText(
+            @RequestParam(value = "url") String url, @RequestParam(value = "type") int type) throws JSONException {
+        return CustomResponseEntity.success(textService.getSummaryAndAnalyzedText(url, type));
     }
 }
