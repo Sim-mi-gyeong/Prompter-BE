@@ -3,8 +3,10 @@ package com.prompter.external.gpt.dto.response.wikipedia;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import java.util.Map;
+
 @Getter
-public class wikipediaApiResponse<T> {
+public class wikipediaApiResponse {
     /*
         {
             "batchcomplete": "",
@@ -26,11 +28,11 @@ public class wikipediaApiResponse<T> {
     @Getter
     public class Query {
 
-        public Pages<T> pages;
+//        private Pages pages;
+        Map<String, PageData> pages;
 
         @Getter
-        public class Pages<T> {
-            private T data;
+        public static class PageData {
 
             @JsonProperty(value = "pageid")
             private long pageId;
@@ -40,11 +42,23 @@ public class wikipediaApiResponse<T> {
             private String title;
 
             private String extract;
-
-            public Pages(T data) {
-                this.data = data;
-            }
-
         }
+
+//        @Getter
+//        public static class Pages {
+//
+//            private Map<String, PageData> pageData;
+//
+//            public static class PageData {
+//
+//                @JsonProperty(value = "pageid")
+//                private long pageId;
+//
+//                private int ns;
+//
+//                private String title;
+//
+//                private String extract;
+//            }
     }
 }

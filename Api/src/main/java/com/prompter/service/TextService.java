@@ -1,6 +1,7 @@
 package com.prompter.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.prompter.common.LanguageCode;
 import com.prompter.external.gpt.ExternalClientProperties;
 import com.prompter.external.gpt.ExternalRestful;
 import com.prompter.external.gpt.dto.response.gpt.OpenAiApiResultResponse;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -108,19 +110,26 @@ public class TextService {
         OpenAiApiResultResponse clientResponse = getSummaryResponse(url, type);
 
         String[] tags = clientResponse.getTags().split(",");
-        List<ResultResponse.Keyword> keywords = new ArrayList<>();
+
+        List<Optional<ResultResponse.Keyword>> keywords = new ArrayList<>();
 
         Arrays.stream(tags)
-                .map(
-                        tag -> keywords.add(
-                                new ResultResponse.Keyword(
-                                        tag,
-                                        getWikipediaContent(tag, language).getQuery().getPages().getExtract(),
-                                        ""
-                                )
+        .forEach(tag -> {
+                    log.info("getWikipediaContent(tag, language).getQuery().getPages().values() : {}", getWikipediaContent(tag, language).getQuery().getPages().values());
+                    keywords.add(
+                            getWikipediaContent(tag, language).getQuery().getPages().values()
+                                    .stream()
+                                    .map(pageData -> new ResultResponse.Keyword(
+                                                    tag.replace(" ", ""),
+                                                    pageData.getExtract(),
+                                                    language.equals(LanguageCode.EN.getDesc()) ? externalClientProperties.getWikipediaApi().getEnPageUrl() + tag.replace(" ", "") : externalClientProperties.getWikipediaApi().getKoPageUrl() + tag.replace(" ", "")
+                                            )
+                                    ).findFirst()
+                    );
 
-                        )
-                );
+                }
+        );
+
         log.info("keywords.size() : {}", keywords.size());
 
         // Rule Base 광고 분류 적용
