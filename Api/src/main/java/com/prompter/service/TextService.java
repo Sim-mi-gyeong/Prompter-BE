@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -29,6 +28,9 @@ public class TextService {
 
     private final ExternalRestful externalRestful;
     private final ExternalClientProperties externalClientProperties;
+
+    private static final Double PERCENT_GPT = 39.5;
+    private static final Double PERCENT_RULE_BASE = 59.5;
 
 //    public Flux<SummaryResponse> getSummaryTextByStream2(String url) throws JSONException, JsonProcessingException {
 //
@@ -126,11 +128,26 @@ public class TextService {
         log.info("keywords.size() : {}", keywords.size());
 
         // Rule Base 광고 분류 적용
-        boolean classifyAdsYn = classifyAdsYn(url, clientResponse.getAdYn().equals("O"));
-
+        boolean classifyAdsYn = clientResponse.getAdYn().equals("O");
         return ResultResponse.of(clientResponse.getTitle(),
-                clientResponse.getSummary(), Arrays.asList(tags), keywords, 0
+                clientResponse.getSummary(), Arrays.asList(tags), keywords,
+                calculatePercentByAi(classifyAdsYn) + calculatePercentByRule(clientResponse.getContent())
             );
+    }
+
+    public double calculatePercentByAi(boolean flag) {
+        if (flag) return PERCENT_GPT;
+        else return 0.0;
+    }
+
+    // [‘소정의‘, ‘원고료‘, ‘지원받아‘, ‘업체로부터‘, ‘업체에게‘, ‘광고‘, ‘유료광고‘, ‘협찬’]
+    public double calculatePercentByRule(String content) {
+        if (content.contains("소정의") || content.contains("원고료") || content.contains("수수료") || content.contains("지원받아") || content.contains("업체로부터")
+            || content.contains("업체에게") || content.contains("광고") || content.contains("유료광고") || content.contains("협찬")
+        ) {
+            return PERCENT_RULE_BASE;
+        }
+        return 0.0;
     }
 
     @Async("sampleExecutor")

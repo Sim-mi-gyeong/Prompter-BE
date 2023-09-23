@@ -16,7 +16,7 @@ public class ResultResponse {
     private final String summaryContent;
     private List<String> tags;
     private  List<Optional<Keyword>> keywords;
-    private int adsPercent;
+    private double adsPercent;
 
     @Getter
     @Builder
@@ -28,7 +28,7 @@ public class ResultResponse {
         private String wikiUrl;
     }
 
-    public static ResultResponse of(String title, String summaryContent, List<String> tags, List<Optional<Keyword>> keywords, int adsPercent) {
+    public static ResultResponse of(String title, String summaryContent, List<String> tags, List<Optional<Keyword>> keywords, double adsPercent) {
         return ResultResponse
                 .builder()
                 .title(title)
