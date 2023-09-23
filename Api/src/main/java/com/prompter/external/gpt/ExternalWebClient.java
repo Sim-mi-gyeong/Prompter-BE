@@ -58,6 +58,32 @@ public class ExternalWebClient {
                 .build();
     }
 
+    @Bean
+    public WebClient koWikipediaApiWebClient(ExternalClientProperties externalClientProperties) {
+        return WebClient.builder()
+                .baseUrl(externalClientProperties.getWikipediaApi().getKoBaseUrl())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .clientConnector(
+                        new ReactorClientHttpConnector(httpClient(10000, 10000, 50000))
+                )
+                .filter(logRequest())
+                .filter(logResponse())
+                .build();
+    }
+
+    @Bean
+    public WebClient enWikipediaApiWebClient(ExternalClientProperties externalClientProperties) {
+        return WebClient.builder()
+                .baseUrl(externalClientProperties.getWikipediaApi().getEnBaseUrl())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .clientConnector(
+                        new ReactorClientHttpConnector(httpClient(10000, 10000, 50000))
+                )
+                .filter(logRequest())
+                .filter(logResponse())
+                .build();
+    }
+
     // 클라이언트 필터 등록
     private static ExchangeFilterFunction logRequest() {
         return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {

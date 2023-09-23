@@ -31,3 +31,8 @@ client:
     baseUrl: https://openapi.naver.com/v1/papago/n2mt
     clientId: okX738NQg1yTTO6j1k9r
     clientSecret: g9OC4wLyEW
+  wikipediaApi:
+    koBaseUrl: https://ko.wikipedia.org/w/api.php
+    enBaseUrl: https://en.wikipedia.org/w/api.php
+    koPageUrl: https://ko.wikipedia.org/wiki/
+    enPageUrl: https://en.wikipedia.org/wiki/

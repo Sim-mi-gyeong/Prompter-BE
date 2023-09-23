@@ -1,14 +1,11 @@
 package com.prompter.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.prompter.common.CustomException;
-import com.prompter.common.Result;
-import com.prompter.domain.Site;
+import com.prompter.external.gpt.ExternalClientProperties;
 import com.prompter.external.gpt.ExternalRestful;
-import com.prompter.external.gpt.dto.response.gpt.OpenAiApiSummaryResponse;
-import com.prompter.external.gpt.dto.response.gpt.OpenAiApiTagResponse;
-import com.prompter.repository.SiteRepository;
+import com.prompter.external.gpt.dto.response.gpt.OpenAiApiResultResponse;
 import com.prompter.controller.response.ResultResponse;
+import com.prompter.external.gpt.dto.response.wikipedia.wikipediaApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
@@ -17,8 +14,9 @@ import org.json.JSONException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 @Service
@@ -26,8 +24,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class TextService {
 
-    private final SiteRepository siteRepository;
     private final ExternalRestful externalRestful;
+    private final ExternalClientProperties externalClientProperties;
 
 //    public Flux<SummaryResponse> getSummaryTextByStream2(String url) throws JSONException, JsonProcessingException {
 //
@@ -105,47 +103,62 @@ public class TextService {
 	}
  */
 
-    public ResultResponse getSummaryAndAnalyzedText(String url, int type) throws JSONException {
+    public ResultResponse getSummaryAndAnalyzedText(String url, int type, String language) throws JSONException {
 
-        String summary = getSummaryResponse(url, type);
-        String[] tags = getTagResponse(url, type).getTag().split(",");
-        boolean classifyAdsYn = classifyAdsYn(url, type);
+        OpenAiApiResultResponse clientResponse = getSummaryResponse(url, type);
+
+        String[] tags = clientResponse.getTags().split(",");
+        List<ResultResponse.Keyword> keywords = new ArrayList<>();
+
+        Arrays.stream(tags)
+                .map(
+                        tag -> keywords.add(
+                                new ResultResponse.Keyword(
+                                        tag,
+                                        getWikipediaContent(tag, language).getQuery().getPages().getExtract(),
+                                        ""
+                                )
+
+                        )
+                );
+        log.info("keywords.size() : {}", keywords.size());
+
+        // Rule Base 광고 분류 적용
+        boolean classifyAdsYn = classifyAdsYn(url, clientResponse.getAdYn().equals("O"));
 
         return ResultResponse.of(
-                summary, Arrays.asList(tags), null, classifyAdsYn
+                clientResponse.getSummary(), Arrays.asList(tags), keywords, 0
             );
     }
 
-    /**
-     * 텍스트 관련 API 호출
-     */
     @Async("sampleExecutor")
-    public String getSummaryResponse(String text, int type) {
-        return externalRestful.getTextSummary(text, type);
+    public OpenAiApiResultResponse getSummaryResponse(String url, int type) {
+        return externalRestful.getSummary(url, type);
     }
 
     @Async("sampleExecutor")
-    public Flux<OpenAiApiSummaryResponse> getSummaryResponseByStream(String text, int type) throws JsonProcessingException {
+    public Flux<OpenAiApiResultResponse> getSummaryResponseByStream(String text, int type) throws JsonProcessingException {
         return externalRestful.getTextSummaryByStream(text, type);
     }
 
     @Async("sampleExecutor")
-    public OpenAiApiTagResponse getTagResponse(String text, int type) {
-        return externalRestful.getTags(text, type);
+    public boolean classifyAdsYn(String content, boolean checkAdsByOpenAiApi) {
+        // Rule Base
+        boolean checkAdsYn = checkAds(content);
+
+        if (!checkAdsByOpenAiApi && checkAdsYn) {
+            return true;
+        } else {
+            return false;
+        }
+//        return checkAdsYn;
     }
 
-    // 광고 분류 API 호출
-    @Async("sampleExecutor")
-    private boolean checkAdsByOpenAiApi(String content, int type) {
-        return Objects.equals(Objects.requireNonNull(externalRestful.checkAds(content, type).getAd()), "O");
-    }
-
-    @Async("sampleExecutor")
-    public boolean classifyAdsYn(String content, int type) {
-        boolean checkAdsYn = false;
-        checkAdsYn = checkAdsByOpenAiApi(content, type);
-        checkAdsYn = checkAds(content);
-        return checkAdsYn;
+    /**
+     * 위키피디아
+     */
+    public wikipediaApiResponse getWikipediaContent(String keyword, String language) {
+        return externalRestful.getWikipediaContent(keyword, language);
     }
 
     /**
@@ -159,20 +172,4 @@ public class TextService {
         }
         return false;
     }
-
-    /**
-     * method
-     */
-    public String getContent(String url) {
-        return findSiteByUrl(url).getContent();
-    }
-
-    private Site findSiteByUrl(String url) {
-        return siteRepository.findByUrl(url).orElseThrow(() -> new CustomException(Result.NOT_EXIST_URL_SITE));
-    }
-
-    private boolean classifyVideo(String url) {
-        return url.contains("www.youtube.com");
-    }
-
 }

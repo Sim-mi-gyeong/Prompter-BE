@@ -1,7 +1,9 @@
 package com.prompter.controller.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -11,30 +13,26 @@ public class ResultResponse {
 
     private final String summaryContent;
     private List<String> tags;
-    private List<Word> words;
-    private boolean isAds;
-
-    /*
-        type Word = {
-       text:string;
-       value:number;
-        }
-     */
+    private List<Keyword> keywords;
+    private int adsPercent;
 
     @Getter
     @Builder
-    public static class Word {
-        private String text;
-        private long number;
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Keyword {
+        private String keyword;
+        private String wikiContent;
+        private String wikiUrl;
     }
 
-    public static ResultResponse of(String summaryContent, List<String> tags, List<Word> words, boolean isAds) {
+    public static ResultResponse of(String summaryContent, List<String> tags, List<Keyword> keywords, int adsPercent) {
         return ResultResponse
                 .builder()
                 .summaryContent(summaryContent)
                 .tags(tags)
-                .words(words)
-                .isAds(isAds)
+                .keywords(keywords)
+                .adsPercent(adsPercent)
                 .build();
     }
 }

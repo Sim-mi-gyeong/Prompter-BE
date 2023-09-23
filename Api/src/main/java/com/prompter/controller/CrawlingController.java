@@ -71,7 +71,8 @@ public class CrawlingController {
      */
     @GetMapping("/result")
     public CustomResponseEntity<ResultResponse> getSummaryAndAnalyzedText(
-            @RequestParam(value = "url") String url, @RequestParam(value = "type") int type) throws JSONException {
-        return CustomResponseEntity.success(textService.getSummaryAndAnalyzedText(url, type));
+            @RequestParam(value = "url") String url, @RequestParam(value = "type") int type,
+            @RequestParam(value = "language", required = false) String language) throws JSONException {
+        return CustomResponseEntity.success(textService.getSummaryAndAnalyzedText(url, type, language));
     }
 }
