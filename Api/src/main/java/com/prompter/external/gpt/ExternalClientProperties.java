@@ -12,6 +12,7 @@ public class ExternalClientProperties {
 
     private final OpenAiApi openAiApi;
     private final PapaoApi papaoApi;
+    private final SearchApi searchApi;
     private final WikipediaApi wikipediaApi;
 
     @Getter
@@ -23,6 +24,14 @@ public class ExternalClientProperties {
     @Getter
     @AllArgsConstructor
     public static class PapaoApi {
+        private final String baseUrl;
+        private final String clientId;
+        private final String clientSecret;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class SearchApi {
         private final String baseUrl;
         private final String clientId;
         private final String clientSecret;

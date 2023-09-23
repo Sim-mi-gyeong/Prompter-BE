@@ -1,24 +1,23 @@
 package com.prompter.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.prompter.common.LanguageCode;
 import com.prompter.external.gpt.ExternalClientProperties;
 import com.prompter.external.gpt.ExternalRestful;
 import com.prompter.external.gpt.dto.response.gpt.OpenAiApiResultResponse;
 import com.prompter.controller.response.ResultResponse;
+import com.prompter.external.gpt.dto.response.search.SearchDictionaryResponse;
 import com.prompter.external.gpt.dto.response.wikipedia.wikipediaApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Flux;
 
 import org.json.JSONException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -113,17 +112,9 @@ public class TextService {
         OpenAiApiResultResponse clientResponse = getSummaryResponse(url, type);
 
         String[] tags = clientResponse.getTags().split(",");
-        
-        List<Optional<ResultResponse.Keyword>> keywords = Arrays.stream(tags)
-                .map(tag -> getWikipediaContent(tag, language).getQuery().getPages().values()
-                        .stream()
-                        .map(pageData -> new ResultResponse.Keyword(
-                                        tag.replace(" ", ""),
-                                        pageData.getExtract(),
-                                        language.equals(LanguageCode.EN.getDesc()) ? externalClientProperties.getWikipediaApi().getEnPageUrl() + tag.replace(" ", "") : externalClientProperties.getWikipediaApi().getKoPageUrl() + tag.replace(" ", "")
-                                )
-                        ).findFirst()
-                ).collect(Collectors.toList());
+
+        List<ResultResponse.Keyword> keywords = Arrays.stream(tags)
+                .map(this::createKeyword).collect(Collectors.toList());
 
         log.info("keywords.size() : {}", keywords.size());
 
@@ -160,17 +151,34 @@ public class TextService {
         return externalRestful.getTextSummaryByStream(text, type);
     }
 
-    @Async("sampleExecutor")
-    public boolean classifyAdsYn(String content, boolean checkAdsByOpenAiApi) {
-        // Rule Base
-        boolean checkAdsYn = checkAds(content);
+    /**
+     * 네이버 검색 - 백과사전
+     */
+    public ResultResponse.Keyword createKeyword(String tag) {
+        SearchDictionaryResponse searchDictionaryResponse = searchByDictionary(tag);
+        return  new ResultResponse.Keyword(
+                tag.replace(" ", ""),
+                getDescription(searchDictionaryResponse),
+                getLink(searchDictionaryResponse)
+        );
+    }
 
-        if (!checkAdsByOpenAiApi && checkAdsYn) {
-            return true;
-        } else {
-            return false;
+    public SearchDictionaryResponse searchByDictionary(String keyword) {
+        return externalRestful.searchByDictionary(keyword);
+    }
+
+    public String getDescription(SearchDictionaryResponse response) {
+        if (!ObjectUtils.isEmpty(response.getItems().stream())) {
+            return response.getItems().stream().findFirst().get().getDescription();
         }
-//        return checkAdsYn;
+        return "";
+    }
+
+    public String getLink(SearchDictionaryResponse response) {
+        if (!ObjectUtils.isEmpty(response.getItems().stream())) {
+            return response.getItems().stream().findFirst().get().getLink();
+        }
+        return "";
     }
 
     /**

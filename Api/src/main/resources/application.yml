@@ -29,8 +29,16 @@ client:
     baseUrl: http://64.110.80.114:5000
   papaoApi:
     baseUrl: https://openapi.naver.com/v1/papago/n2mt
-    clientId: okX738NQg1yTTO6j1k9r
-    clientSecret: g9OC4wLyEW
+#    clientId: okX738NQg1yTTO6j1k9r
+#    clientSecret: g9OC4wLyEW
+    clientId: xQxDiLDqJT3_0or7DBLo
+    clientSecret: 3C2oKMK9C5
+  searchApi:
+    baseUrl: https://openapi.naver.com/v1/search/encyc.json
+#    clientId: okX738NQg1yTTO6j1k9r
+#    clientSecret: g9OC4wLyEW
+    clientId: xQxDiLDqJT3_0or7DBLo
+    clientSecret: 3C2oKMK9C5
   wikipediaApi:
     koBaseUrl: https://ko.wikipedia.org/w/api.php
     enBaseUrl: https://en.wikipedia.org/w/api.php

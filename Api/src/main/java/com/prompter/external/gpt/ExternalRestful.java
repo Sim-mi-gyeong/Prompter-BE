@@ -4,6 +4,7 @@ import com.prompter.common.LanguageCode;
 import com.prompter.external.gpt.dto.response.papago.PapagoTranslationErrorResponse;
 import com.prompter.external.gpt.dto.response.papago.PapagoTranslationException;
 import com.prompter.external.gpt.dto.response.papago.PapagoTranslationResponse;
+import com.prompter.external.gpt.dto.response.search.SearchDictionaryResponse;
 import com.prompter.external.gpt.dto.response.wikipedia.wikipediaApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +30,8 @@ public class ExternalRestful {
 
     private final WebClient openAiApiWebClient;
     private final WebClient papagoApiWebClient;
+    private final WebClient searchApiWebClient;
+
     private final WebClient koWikipediaApiWebClient;
     private final WebClient enWikipediaApiWebClient;
 
@@ -110,6 +113,31 @@ public class ExternalRestful {
                 .toStream()
                 .findFirst()
                 .orElse(new PapagoTranslationResponse());
+    }
+
+    /**
+     * 네이버 검색 - 백과사전 API 호출
+     */
+    public SearchDictionaryResponse searchByDictionary(String query) {
+        return searchApiWebClient.mutate()
+                .build()
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("")
+                        .queryParam("query", query)
+                        .queryParam("display", 1)
+                        .build()
+                )
+                .retrieve()
+                .onStatus(
+                        httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(),
+                        clientResponse -> Mono.error(new RuntimeException())
+                )
+                .bodyToMono(SearchDictionaryResponse.class)
+                .flux()
+                .toStream()
+                .findFirst()
+                .orElse(new SearchDictionaryResponse());
     }
 
     /**
