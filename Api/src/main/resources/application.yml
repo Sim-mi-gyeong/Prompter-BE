@@ -27,5 +27,7 @@ spring:
 client:
   openAiApi:
     baseUrl: http://64.110.80.114:5000
-  google:
-    baaseUrl: https://translation.googleapis.com/v3/projects
+  papaoApi:
+    baseUrl: https://openapi.naver.com/v1/papago/n2mt
+    clientId: okX738NQg1yTTO6j1k9r
+    clientSecret: g9OC4wLyEW

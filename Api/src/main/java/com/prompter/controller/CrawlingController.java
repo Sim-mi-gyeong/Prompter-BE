@@ -1,11 +1,8 @@
 package com.prompter.controller;
 
 import com.prompter.common.CustomResponseEntity;
-import com.prompter.response.ResultResponse;
-import com.prompter.response.SummaryResponse;
+import com.prompter.controller.response.ResultResponse;
 import com.prompter.service.CrawlingService;
-
-import com.prompter.response.CrawlingResponse;
 
 import com.prompter.service.TextService;
 import lombok.RequiredArgsConstructor;

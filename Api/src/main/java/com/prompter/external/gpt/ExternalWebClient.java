@@ -30,7 +30,6 @@ public class ExternalWebClient {
                 );
     }
 
-
     @Bean
     public WebClient openAiApiWebClient(ExternalClientProperties externalClientProperties) {
         return WebClient.builder()
@@ -38,6 +37,21 @@ public class ExternalWebClient {
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .clientConnector(
                         new ReactorClientHttpConnector(httpClient(50000, 50000, 50000))
+                )
+                .filter(logRequest())
+                .filter(logResponse())
+                .build();
+    }
+
+    @Bean
+    public WebClient papagoApiWebClient(ExternalClientProperties externalClientProperties) {
+        return WebClient.builder()
+                .baseUrl(externalClientProperties.getPapaoApi().getBaseUrl())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .defaultHeader("X-Naver-Client-Id", externalClientProperties.getPapaoApi().getClientId())
+                .defaultHeader("X-Naver-Client-Secret", externalClientProperties.getPapaoApi().getClientSecret())
+                .clientConnector(
+                        new ReactorClientHttpConnector(httpClient(10000, 10000, 50000))
                 )
                 .filter(logRequest())
                 .filter(logResponse())

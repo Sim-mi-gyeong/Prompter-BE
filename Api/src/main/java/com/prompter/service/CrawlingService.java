@@ -1,6 +1,5 @@
 package com.prompter.service;
 
-import com.prompter.response.CrawlingResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

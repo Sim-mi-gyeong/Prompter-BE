@@ -1,4 +1,4 @@
-package com.prompter.external.gpt.dto.response;
+package com.prompter.external.gpt.dto.response.gpt;
 
 import lombok.Getter;
 

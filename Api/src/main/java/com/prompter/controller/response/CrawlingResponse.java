@@ -1,4 +1,4 @@
-package com.prompter.response;
+package com.prompter.controller.response;
 
 import lombok.Builder;
 import lombok.Getter;
