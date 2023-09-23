@@ -12,6 +12,7 @@ import java.util.Optional;
 @Builder
 public class ResultResponse {
 
+    private String title;
     private final String summaryContent;
     private List<String> tags;
     private  List<Optional<Keyword>> keywords;
@@ -27,9 +28,10 @@ public class ResultResponse {
         private String wikiUrl;
     }
 
-    public static ResultResponse of(String summaryContent, List<String> tags, List<Optional<Keyword>> keywords, int adsPercent) {
+    public static ResultResponse of(String title, String summaryContent, List<String> tags, List<Optional<Keyword>> keywords, int adsPercent) {
         return ResultResponse
                 .builder()
+                .title(title)
                 .summaryContent(summaryContent)
                 .tags(tags)
                 .keywords(keywords)

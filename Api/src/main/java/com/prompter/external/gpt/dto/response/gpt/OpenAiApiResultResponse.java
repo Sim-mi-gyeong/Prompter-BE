@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class OpenAiApiResultResponse {
+    private String title;
     private String summary;
     private String content;
     private String tags;

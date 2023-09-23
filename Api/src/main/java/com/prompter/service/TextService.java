@@ -115,7 +115,6 @@ public class TextService {
 
         Arrays.stream(tags)
         .forEach(tag -> {
-                    log.info("getWikipediaContent(tag, language).getQuery().getPages().values() : {}", getWikipediaContent(tag, language).getQuery().getPages().values());
                     keywords.add(
                             getWikipediaContent(tag, language).getQuery().getPages().values()
                                     .stream()
@@ -135,7 +134,7 @@ public class TextService {
         // Rule Base 광고 분류 적용
         boolean classifyAdsYn = classifyAdsYn(url, clientResponse.getAdYn().equals("O"));
 
-        return ResultResponse.of(
+        return ResultResponse.of(clientResponse.getTitle(),
                 clientResponse.getSummary(), Arrays.asList(tags), keywords, 0
             );
     }
