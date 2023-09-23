@@ -2,20 +2,20 @@ package com.prompter.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.prompter.common.CustomResponseEntity;
+import com.prompter.controller.request.KeywordRequest;
+import com.prompter.controller.response.KeywordResponse;
 import com.prompter.controller.response.ResultResponse;
 import com.prompter.controller.response.StreamResultResponse;
 import com.prompter.controller.response.SummaryResponse;
 import com.prompter.service.CrawlingService;
 
 import com.prompter.service.TextService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.json.JSONException;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import java.util.stream.Stream;
@@ -84,7 +84,7 @@ public class CrawlingController {
     }
 
     @GetMapping(value = "/result/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<CustomResponseEntity<StreamResultResponse>> getSummaryAndAnalyzedTextTest3(
+    public Flux<CustomResponseEntity<StreamResultResponse>> getSummaryAndAnalyzedTextStream(
             @RequestParam(value = "url") String url, @RequestParam(value = "type") int type,
             @RequestParam(value = "language", required = false) String language) throws JSONException, JsonProcessingException {
 
@@ -92,17 +92,8 @@ public class CrawlingController {
                 .map(CustomResponseEntity::success);
     }
 
-    /*
-    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<User> streamAllUsers() {
-        return userService
-                .getAllUsers()
-                .flatMap(user -> Flux
-                        .zip(Flux.interval(Duration.ofSeconds(2)),
-                                Flux.fromStream(Stream.generate(() -> user))
-                        )
-                        .map(Tuple2::getT2)
-                );
+    @GetMapping(value = "/result/keyword")
+    public CustomResponseEntity<KeywordResponse> getKeywordsBySearch(@RequestBody @Valid KeywordRequest request) {
+        return CustomResponseEntity.success(textService.getKeywordsBySearch(request));
     }
-     */
 }

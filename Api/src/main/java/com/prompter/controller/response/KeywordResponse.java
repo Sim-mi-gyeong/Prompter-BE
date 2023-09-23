@@ -13,15 +13,18 @@ import java.util.List;
 @AllArgsConstructor
 public class KeywordResponse {
 
-    private List<Keyword> keywordx;
+    private List<Keyword> keywords;
 
     @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
     public static class Keyword {
-        private String keyword;
-        private String wikiContent;
-        private String wikiUrl;
+        private final String keyword;
+        private final String wikiContent;
+        private final String wikiUrl;
+
+        public Keyword(ResultResponse.Keyword response) {
+            this.keyword = response.getKeyword();
+            this.wikiContent = response.getWikiContent();
+            this.wikiUrl = response.getWikiUrl();
+        }
     }
 }

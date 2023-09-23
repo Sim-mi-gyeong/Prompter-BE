@@ -1,8 +1,9 @@
 package com.prompter.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.prompter.controller.request.KeywordRequest;
+import com.prompter.controller.response.KeywordResponse;
 import com.prompter.controller.response.StreamResultResponse;
-import com.prompter.controller.response.SummaryResponse;
 import com.prompter.external.gpt.ExternalRestful;
 import com.prompter.external.gpt.dto.response.gpt.OpenAiApiResultResponse;
 import com.prompter.controller.response.ResultResponse;
@@ -16,10 +17,10 @@ import org.json.JSONException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -193,6 +194,17 @@ public class TextService {
             return response.getItems().stream().findFirst().get().getLink();
         }
         return "";
+    }
+
+    public KeywordResponse getKeywordsBySearch(KeywordRequest request) {
+
+        return new KeywordResponse(
+                request.getTags().stream()
+                        .map(tag -> new KeywordResponse.Keyword(
+                                        createKeyword(tag.replace(" ", "")))
+                            ).collect(Collectors.toList()
+                        )
+        );
     }
 
 }
