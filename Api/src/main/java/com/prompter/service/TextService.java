@@ -126,6 +126,17 @@ public class TextService {
 	}
  */
 
+    public ResultResponse getSummaryAndAnalyzedTextOrVideo(String url, int type) throws JSONException {
+        /**
+         * url 에 대한 분기 처리
+         */
+        if (classifyVideo(url)) {
+            return getSummaryAndAnalyzedVideo(url, type);
+        } else {
+            return getSummaryAndAnalyzedText(url, type);
+        }
+    }
+
     public ResultResponse getSummaryAndAnalyzedText(String url, int type) throws JSONException {
 
         Site site = findSiteByUrl(url);
@@ -137,6 +148,67 @@ public class TextService {
         return ResultResponse.of(
                 summary, Arrays.asList(tags), null, classifyAdsYn
             );
+    }
+
+    public ResultResponse getSummaryAndAnalyzedVideo(String url, int type) throws JSONException {
+
+        String summary = externalRestful.getVideoSummary(url, type);
+        String[] tags = externalRestful.getVideoTags(url, type).getTag().split(",");
+        boolean classifyAdsYn = externalRestful.checkVideoAds(url, type).getAd().equals("O");
+
+        return ResultResponse.of(
+                summary, Arrays.asList(tags), null, classifyAdsYn
+        );
+    }
+
+    /**
+     * 영상 관련 API 호출
+     */
+    @Async("sampleExecutor")
+    public String getVideoSummaryResponse(String url, int type) {
+        return externalRestful.getVideoSummary(url, type);
+    }
+
+    @Async("sampleExecutor")
+    public OpenAiApiTagResponse getVideoTagResponse(String url, int type) {
+        return externalRestful.getVideoTags(url, type);
+    }
+
+    @Async("sampleExecutor")
+    public boolean videoClassifyAdsYn(String url, int type) {
+        boolean checkAdsYn = false;
+        checkAdsYn = checkVideoAdsByOpenAiApi(url, type);
+        checkAdsYn = checkAds(url);
+        return checkAdsYn;
+    }
+
+    @Async("sampleExecutor")
+    private boolean checkVideoAdsByOpenAiApi(String url, int type) {
+        return Objects.equals(Objects.requireNonNull(externalRestful.checkVideoAds(url, type).getAd()), "O");
+    }
+
+    /**
+     * 텍스트 관련 API 호출
+     */
+    @Async("sampleExecutor")
+    public String getSummaryResponse(String text, int type) {
+        return externalRestful.getTextSummary(text, type);
+    }
+
+    @Async("sampleExecutor")
+    public Flux<OpenAiApiSummaryResponse> getSummaryResponseByStream(String text, int type) throws JsonProcessingException {
+        return externalRestful.getTextSummaryByStream(text, type);
+    }
+
+    @Async("sampleExecutor")
+    public OpenAiApiTagResponse getTagResponse(String text, int type) {
+        return externalRestful.getTags(text, type);
+    }
+
+    // 광고 분류 API 호출
+    @Async("sampleExecutor")
+    private boolean checkAdsByOpenAiApi(String content, int type) {
+        return Objects.equals(Objects.requireNonNull(externalRestful.checkAds(content, type).getAd()), "O");
     }
 
     @Async("sampleExecutor")
@@ -159,90 +231,19 @@ public class TextService {
         return false;
     }
 
-    // 광고 분류 API 호출
-    @Async("sampleExecutor")
-    private boolean checkAdsByOpenAiApi(String content, int type) {
-        return Objects.equals(Objects.requireNonNull(externalRestful.checkAds(content, type).getAd()), "O");
-    }
-
-//    @Async("sampleExecutor")
-//    public List<ResultResponse.Word> analyze(String content) {
-//        Komoran komoran = new Komoran(DEFAULT_MODEL.FULL);
-//
-//        KomoranResult analyzeResultList = komoran.analyze(content);
-//
-//        /**
-//         * getMorphesByTags() : 특정 형태소 추출 가능
-//         * NN : 명사 , MAG : 일반 부사 , PA : 형용사 , PV : 동사
-//         * NNB : 일반 의존 명사 , NNG : 보통명사 , NNM : 단위 의존 명사 , NNP : 고유 명사 , NP : 대명사
-//         */
-//        HashMap<String, Integer> nounMap = new HashMap<>();
-//        List<String> nounList = analyzeResultList.getMorphesByTags("NNP", "NNG");
-//        Stream<String> streamNounList = nounList.stream();
-//        streamNounList
-//                .forEach(
-//                       word -> {
-//                           int num = Collections.frequency(nounList, word);
-////                           log.info("word : {} , num : {}", word, num);
-//                           nounMap.put(word, num);
-//                       }
-//                );
-//
-//        List<Map.Entry<String, Integer>> entryList = sortByWordNum(nounMap);
-//
-//        List<ResultResponse.Word> wordList = new ArrayList<>();
-//        Iterator it = entryList.iterator();
-//        int cnt = 0;
-//        while (it.hasNext()) {
-//            cnt += 1;
-//            Map.Entry<String, Integer> entry = (Map.Entry)it.next();
-//            wordList.add(
-//                    ResultResponse.Word.builder()
-//                            .text(entry.getKey())
-//                            .number(entry.getValue())
-//                            .build()
-//            );
-//            if (cnt == 20) {
-//                break;
-//            }
-//        }
-//        return wordList;
-//    }
-
-    private List<Map.Entry<String, Integer>> sortByWordNum(HashMap<String, Integer> map) {
-        List<Map.Entry<String, Integer>> entryList = new LinkedList<Map.Entry<String, Integer>>(map.entrySet());
-
-        Collections.sort(entryList, new Comparator<Map.Entry<String, Integer>>() {
-            @Override
-            public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
-                return o2.getValue().compareTo(o1.getValue());
-            }
-        });
-        return entryList;
-    }
-
-    // OpenAi API 호출
-    @Async("sampleExecutor")
-    public String getSummaryResponse(String text, int type) {
-        return externalRestful.getTextSummary(text, type);
-    }
-
-    @Async("sampleExecutor")
-    public Flux<OpenAiApiSummaryResponse> getSummaryResponseByStream(String text, int type) throws JsonProcessingException {
-        return externalRestful.getTextSummaryByStream(text, type);
-    }
-
-    @Async("sampleExecutor")
-    public OpenAiApiTagResponse getTagResponse(String text, int type) {
-        return externalRestful.getTags(text, type);
-    }
-
+    /**
+     * method
+     */
     public String getContent(String url) {
         return findSiteByUrl(url).getContent();
     }
 
     private Site findSiteByUrl(String url) {
         return siteRepository.findByUrl(url).orElseThrow(() -> new CustomException(Result.NOT_EXIST_URL_SITE));
+    }
+
+    private boolean classifyVideo(String url) {
+        return url.contains("www.youtube.com");
     }
 
 }

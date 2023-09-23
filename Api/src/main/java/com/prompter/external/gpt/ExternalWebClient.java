@@ -36,9 +36,8 @@ public class ExternalWebClient {
         return WebClient.builder()
                 .baseUrl(externalClientProperties.getOpenAiApi().getBaseUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-//                .defaultHeader("Authorization", externalClientProperties.getOpenAiApi().getKey())
                 .clientConnector(
-                        new ReactorClientHttpConnector(httpClient(10000, 10000, 50000))
+                        new ReactorClientHttpConnector(httpClient(50000, 50000, 50000))
                 )
                 .filter(logRequest())
                 .filter(logResponse())
