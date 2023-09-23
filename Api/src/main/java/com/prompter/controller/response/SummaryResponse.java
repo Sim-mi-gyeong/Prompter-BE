@@ -1,22 +1,35 @@
 package com.prompter.controller.response;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class SummaryResponse {
 
-    private final String summaryContent;
-    private final List<String> tags;
+    private String summaryContent;
+//    private List<String> tags;
+//    private List<Stream<Object>> tags;
 
-    public static SummaryResponse of(String summaryContent, List<String> tags) {
+//    public static SummaryResponse of(String summaryContent, List<Stream<Object>> tags) {
+//        return SummaryResponse
+//                .builder()
+//                .summaryContent(summaryContent)
+////                .tags(tags)
+//                .build();
+//    }
+
+    public static SummaryResponse of(String summaryContent) {
         return SummaryResponse
                 .builder()
                 .summaryContent(summaryContent)
-                .tags(tags)
                 .build();
     }
 }

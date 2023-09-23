@@ -1,17 +1,24 @@
 package com.prompter.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.prompter.common.CustomResponseEntity;
 import com.prompter.controller.response.ResultResponse;
+import com.prompter.controller.response.StreamResultResponse;
+import com.prompter.controller.response.SummaryResponse;
 import com.prompter.service.CrawlingService;
 
 import com.prompter.service.TextService;
 import lombok.RequiredArgsConstructor;
 
 import org.json.JSONException;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
+
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @RequestMapping("/crawling")
@@ -75,4 +82,27 @@ public class CrawlingController {
             @RequestParam(value = "language", required = false) String language) throws JSONException {
         return CustomResponseEntity.success(textService.getSummaryAndAnalyzedText(url, type, language));
     }
+
+    @GetMapping(value = "/result/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<CustomResponseEntity<StreamResultResponse>> getSummaryAndAnalyzedTextTest3(
+            @RequestParam(value = "url") String url, @RequestParam(value = "type") int type,
+            @RequestParam(value = "language", required = false) String language) throws JSONException, JsonProcessingException {
+
+        return textService.getSummaryAndAnalyzedTextStream(url, type, language)
+                .map(CustomResponseEntity::success);
+    }
+
+    /*
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<User> streamAllUsers() {
+        return userService
+                .getAllUsers()
+                .flatMap(user -> Flux
+                        .zip(Flux.interval(Duration.ofSeconds(2)),
+                                Flux.fromStream(Stream.generate(() -> user))
+                        )
+                        .map(Tuple2::getT2)
+                );
+    }
+     */
 }

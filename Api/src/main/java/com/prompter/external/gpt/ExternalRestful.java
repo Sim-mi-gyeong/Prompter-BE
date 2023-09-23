@@ -53,18 +53,19 @@ public class ExternalRestful {
                 .orElse(new OpenAiApiResultResponse());
     }
 
-    public Flux<OpenAiApiResultResponse> getTextSummaryByStream(String text, int type) throws JsonProcessingException {
-        Flux<OpenAiApiResultResponse> streamText = openAiApiWebClient
-                .mutate()
-                .build()
+    public Flux<OpenAiApiResultResponse> getSummaryByStream(String url, int type) throws JsonProcessingException {
+        return openAiApiWebClient
+//                .mutate()
+//                .build()
                 .post()
-                .uri("/summary")
-                .bodyValue(OpenAiApiTextSummaryRequest.of(text, type))
+                .uri("/summarysse")
+                .bodyValue(OpenAiApiTextSummaryRequest.of(url, type))
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
-                .bodyToFlux(OpenAiApiResultResponse.class);
-
-        return streamText;
+                .bodyToFlux(OpenAiApiResultResponse.class)
+                .flatMap(
+                        Flux::just
+                );
     }
 
     /*
@@ -135,4 +136,17 @@ public class ExternalRestful {
                 .orElse(new SearchDictionaryResponse());
     }
 
+    public Flux<SearchDictionaryResponse> searchByDictionaryStream(String query) {
+        return searchApiWebClient
+                .get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("")
+                        .queryParam("query", query)
+                        .queryParam("display", 1)
+                        .build()
+                )
+                .retrieve()
+                .bodyToFlux(SearchDictionaryResponse.class)
+                .flatMap(Flux::just);
+    }
 }

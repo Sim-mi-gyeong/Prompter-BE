@@ -4,18 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 @Getter
 @Builder
-public class ResultResponse {
+public class StreamResultResponse {
 
     private String title;
     private final String summaryContent;
     private List<String> tags;
-    private List<Keyword> keywords;
+    private List<Flux<Keyword>> keywords;
     private double adsPercent;
 
     @Getter
@@ -28,8 +29,9 @@ public class ResultResponse {
         private String wikiUrl;
     }
 
-    public static ResultResponse of(String title, String summaryContent, List<String> tags, List<Keyword> keywords, double adsPercent) {
-        return ResultResponse
+    public static StreamResultResponse of(String title, String summaryContent,
+                                          List<String> tags, List<Flux<Keyword>> keywords, double adsPercent) {
+        return StreamResultResponse
                 .builder()
                 .title(title)
                 .summaryContent(summaryContent)

@@ -2,6 +2,7 @@ package com.prompter.external.gpt;
 
 import com.google.common.net.HttpHeaders;
 import io.netty.channel.ChannelOption;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,11 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
+import reactor.netty.tcp.TcpClient;
+
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Configuration
@@ -23,15 +29,46 @@ import reactor.netty.http.client.HttpClient;
 public class ExternalWebClient {
 
     public HttpClient httpClient(int connectTimeout, int readTimeout, int writeTimeout) {
-        return HttpClient.create().option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout)
+        return HttpClient.create()
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeout)
                 .doOnConnected(conn -> conn
                         .addHandlerLast(new ReadTimeoutHandler(readTimeout))
                         .addHandlerLast(new WriteTimeoutHandler(writeTimeout))
-                );
+                )
+                .keepAlive(true)
+                .wiretap(true)
+                .compress(true);
     }
 
     @Bean
     public WebClient openAiApiWebClient(ExternalClientProperties externalClientProperties) {
+
+//        final ConnectionProvider connectionProvider =
+//                ConnectionProvider.builder("platform-client-connection-pool-fixed")
+//                        .maxConnections(1_000)
+//                        .pendingAcquireTimeout(Duration.ofMillis(30_000))
+//                        .maxIdleTime(Duration.ofMillis(120))
+//                        .build();
+//
+//        final TcpClient mainTcpClient = TcpClient.create(connectionProvider)
+//                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 15_000)
+//                .doOnConnected(conn -> conn
+//                        .addHandlerLast(new ReadTimeoutHandler(
+//                                120_000,
+//                                TimeUnit.MILLISECONDS))
+//                        .addHandlerLast(new WriteTimeoutHandler(
+//                                500,
+//                                TimeUnit.MILLISECONDS))
+//                        .addHandler(new IdleStateHandler(
+//                                2_000,
+//                                500, 5000,
+//                                TimeUnit.MILLISECONDS)));
+//
+//        final HttpClient httpClient = HttpClient.from(mainTcpClient)
+//                .keepAlive(true)
+//                .wiretap(true)
+//                .compress(true);
+
         return WebClient.builder()
                 .baseUrl(externalClientProperties.getOpenAiApi().getBaseUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
