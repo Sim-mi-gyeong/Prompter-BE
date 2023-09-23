@@ -68,26 +68,6 @@ public class ExternalRestful {
                 );
     }
 
-    /*
-    public Mono<ProfileCoreContentsControlResponse> getContentsControl(final String ppsn) {
-		return profileCoreApiWebClient.get()
-			.uri(uriBuilder -> uriBuilder.path("/contents-control/{ppsn}").build(ppsn))
-			.retrieve()
-			.bodyToMono(WrapperContentsControlResponse.class)
-			.flatMap(e -> {
-				if (e.getCode() != Result.OK.getCode()) {
-					return Mono.error(new ProfileException(Result.valueOf(e.getCode()), e.getMessage()));
-				}
-
-				if (e.getData() == null) {
-					return Mono.empty();
-				}
-
-				return Mono.just(e.getData());
-			});
-	}
-     */
-
     /**
      * Papago 번역 API 호출
      */

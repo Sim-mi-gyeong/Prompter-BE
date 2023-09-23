@@ -32,36 +32,6 @@ public class TextService {
     private static final Double PERCENT_GPT = 39.5;
     private static final Double PERCENT_RULE_BASE = 59.5;
 
-
-    /*
-    @ContentsControl(access = AgeStatusType.CHILD)
-	@Override
-	public Mono<AuthenticationEmailResponse> updateParentEmail(String ppsn, ParentEmailRequest request, ImsProfileInfo imsProfileInfo, Country country) {
-		var siisResponseSequence = siisRestful.create(new SBooksCreateRequest(ppsn, request.getParentEmail(), EXPIRED_SECONDS));
-
-		var nTicketResponseSequence = profileCoreRestful.getProfileByPpsn(ppsn)
-			.flatMap(profileResponse -> htmlReaderService.readEmailBody(emailProperty.getFileName(request.getType(), country))
-				.flatMap(contents -> nTicketRestful.send(new NTicketSendEmailRequest(
-					emailProperty.getSubject(request.getType(), country),
-					request.getParentEmail(),
-					ppsn,
-					contents,
-					profileResponse.getData().getProfileName())
-				)));
-
-
-		return Mono.zip(siisResponseSequence, nTicketResponseSequence, (siis, nTicket) -> {
-			long expiredAt = Instant.now().toEpochMilli() + (CACHE_EXPIRED_SECONDS * 1000);
-
-			profileCacheRepository.save(String.format(CONTENTS_CONTROL_EMAIL_HASH_KEY, ppsn),
-					new ContentsControlVerification(siis.getHashKey(), nTicket.getAuthenticationCode()), CACHE_EXPIRED_SECONDS)
-				.subscribe();
-
-			return new AuthenticationEmailResponse(expiredAt);
-		});
-	}
-     */
-
     public List<ResultResponse.Keyword> getKeywords(String tags) {
         return Arrays.stream(tags.split(","))
                 .map(this::createKeyword).collect(Collectors.toList());
@@ -72,7 +42,6 @@ public class TextService {
                 .map(this::createKeywordByStream)
                 .collect(Collectors.toList());
     }
-
 
     public ResultResponse getSummaryAndAnalyzedText(String url, int type, String language) throws JSONException {
 
@@ -121,35 +90,6 @@ public class TextService {
                             )
                 );
     }
-
-    /*
-    @Override
-	public Mono<ContentsControlResponse> get(String ppsn, ImsProfileInfo imsProfileInfo, Country country, String requestedFrom) {
-		return profileCoreRestful.getContentsControl(ppsn)
-			.flatMap(contentsControlResponse -> {
-				if (contentsControlResponse.isUseParentEmail()) {
-					return siisRestful.get(contentsControlResponse.getEmailHashKey())
-						.flatMap(siisResponse ->
-							Mono.just(ContentsControlResponse.of(contentsControlResponse, siisResponse.getContent(), imsProfileInfo, requestedFrom)));
-				}
-
-				return Mono.just(ContentsControlResponse.of(contentsControlResponse, imsProfileInfo));
-			})
-			.onErrorResume(
-				ProfileException.class,
-				throwable -> {
-					if (Result.NOT_FOUND_CONTENTS_CONTROL.equals(throwable.getResult())) {
-						return profileCoreRestful.createContentsControl(
-							new ProfileCoreContentsControlCreateRequest(ppsn,
-								ContentsControlDefaultType.of(imsProfileInfo.determineAgeStatus(), country.getCountryCodeOrDefaultCountryCode())))
-							.flatMap(createResponse -> Mono.just(ContentsControlResponse.of(createResponse, imsProfileInfo)));
-					}
-
-					return Mono.error(new ProfileException(Result.FAIL));
-				}
-			);
-	}
- */
 
     /**
      * 네이버 검색 - 백과사전
@@ -206,5 +146,4 @@ public class TextService {
                         )
         );
     }
-
 }
