@@ -27,3 +27,5 @@ spring:
 client:
   openAiApi:
     baseUrl: http://64.110.80.114:5000
+  google:
+    baaseUrl: https://translation.googleapis.com/v3/projects

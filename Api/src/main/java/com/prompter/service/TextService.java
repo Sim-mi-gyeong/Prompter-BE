@@ -31,25 +31,6 @@ public class TextService {
     private final SiteRepository siteRepository;
     private final ExternalRestful externalRestful;
 
-    public CrawlingResponse getTextContent(String url) throws JSONException {
-        return CrawlingResponse.from(findSiteByUrl(url).getContent());
-    }
-
-    public SummaryResponse getSummaryText(String url, int type) throws JSONException {
-
-        Site site = findSiteByUrl(url);
-
-        return SummaryResponse.of(getSummaryResponse(site.getContent(), type), Arrays.asList(getTagResponse(site.getContent(), type).getTag().split(",")));
-    }
-
-    public SummaryResponse getSummaryTextByStream(String url, int type) throws JSONException, JsonProcessingException {
-
-        Site site = findSiteByUrl(url);
-        Flux<OpenAiApiSummaryResponse> response = getSummaryResponseByStream(site.getContent(), type);
-
-        return SummaryResponse.of(Objects.requireNonNull(response.blockFirst()).getSummary(), null);
-    }
-
 //    public Flux<SummaryResponse> getSummaryTextByStream2(String url) throws JSONException, JsonProcessingException {
 //
 //        Site site = findSiteByUrl(url);
@@ -128,11 +109,9 @@ public class TextService {
 
     public ResultResponse getSummaryAndAnalyzedText(String url, int type) throws JSONException {
 
-        Site site = findSiteByUrl(url);
-
-        String summary = getSummaryResponse(site.getContent(), type);
-        String[] tags = getTagResponse(site.getContent(), type).getTag().split(",");
-        boolean classifyAdsYn = classifyAdsYn(site.getContent(), type);
+        String summary = getSummaryResponse(url, type);
+        String[] tags = getTagResponse(url, type).getTag().split(",");
+        boolean classifyAdsYn = classifyAdsYn(url, type);
 
         return ResultResponse.of(
                 summary, Arrays.asList(tags), null, classifyAdsYn
