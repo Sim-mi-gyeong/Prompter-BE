@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -110,24 +111,17 @@ public class TextService {
         OpenAiApiResultResponse clientResponse = getSummaryResponse(url, type);
 
         String[] tags = clientResponse.getTags().split(",");
-
-        List<Optional<ResultResponse.Keyword>> keywords = new ArrayList<>();
-
-        Arrays.stream(tags)
-        .forEach(tag -> {
-                    keywords.add(
-                            getWikipediaContent(tag, language).getQuery().getPages().values()
-                                    .stream()
-                                    .map(pageData -> new ResultResponse.Keyword(
-                                                    tag.replace(" ", ""),
-                                                    pageData.getExtract(),
-                                                    language.equals(LanguageCode.EN.getDesc()) ? externalClientProperties.getWikipediaApi().getEnPageUrl() + tag.replace(" ", "") : externalClientProperties.getWikipediaApi().getKoPageUrl() + tag.replace(" ", "")
-                                            )
-                                    ).findFirst()
-                    );
-
-                }
-        );
+        
+        List<Optional<ResultResponse.Keyword>> keywords = Arrays.stream(tags)
+                .map(tag -> getWikipediaContent(tag, language).getQuery().getPages().values()
+                        .stream()
+                        .map(pageData -> new ResultResponse.Keyword(
+                                        tag.replace(" ", ""),
+                                        pageData.getExtract(),
+                                        language.equals(LanguageCode.EN.getDesc()) ? externalClientProperties.getWikipediaApi().getEnPageUrl() + tag.replace(" ", "") : externalClientProperties.getWikipediaApi().getKoPageUrl() + tag.replace(" ", "")
+                                )
+                        ).findFirst()
+                ).collect(Collectors.toList());
 
         log.info("keywords.size() : {}", keywords.size());
 
