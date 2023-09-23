@@ -126,17 +126,6 @@ public class TextService {
 	}
  */
 
-    public ResultResponse getSummaryAndAnalyzedTextOrVideo(String url, int type) throws JSONException {
-        /**
-         * url 에 대한 분기 처리
-         */
-        if (classifyVideo(url)) {
-            return getSummaryAndAnalyzedVideo(url, type);
-        } else {
-            return getSummaryAndAnalyzedText(url, type);
-        }
-    }
-
     public ResultResponse getSummaryAndAnalyzedText(String url, int type) throws JSONException {
 
         Site site = findSiteByUrl(url);
@@ -148,43 +137,6 @@ public class TextService {
         return ResultResponse.of(
                 summary, Arrays.asList(tags), null, classifyAdsYn
             );
-    }
-
-    public ResultResponse getSummaryAndAnalyzedVideo(String url, int type) throws JSONException {
-
-        String summary = externalRestful.getVideoSummary(url, type);
-        String[] tags = externalRestful.getVideoTags(url, type).getTag().split(",");
-        boolean classifyAdsYn = externalRestful.checkVideoAds(url, type).getAd().equals("O");
-
-        return ResultResponse.of(
-                summary, Arrays.asList(tags), null, classifyAdsYn
-        );
-    }
-
-    /**
-     * 영상 관련 API 호출
-     */
-    @Async("sampleExecutor")
-    public String getVideoSummaryResponse(String url, int type) {
-        return externalRestful.getVideoSummary(url, type);
-    }
-
-    @Async("sampleExecutor")
-    public OpenAiApiTagResponse getVideoTagResponse(String url, int type) {
-        return externalRestful.getVideoTags(url, type);
-    }
-
-    @Async("sampleExecutor")
-    public boolean videoClassifyAdsYn(String url, int type) {
-        boolean checkAdsYn = false;
-        checkAdsYn = checkVideoAdsByOpenAiApi(url, type);
-        checkAdsYn = checkAds(url);
-        return checkAdsYn;
-    }
-
-    @Async("sampleExecutor")
-    private boolean checkVideoAdsByOpenAiApi(String url, int type) {
-        return Objects.equals(Objects.requireNonNull(externalRestful.checkVideoAds(url, type).getAd()), "O");
     }
 
     /**

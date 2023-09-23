@@ -94,43 +94,4 @@ public class ExternalRestful {
                 .retrieve()
                 .bodyToMono(OpenAiApiClassifyResponse.class).block();
     }
-
-    /**
-     * 동영상 관련
-     */
-    public String getVideoSummary(String url, int type) {
-        return openAiApiWebClient
-                .mutate()
-                .build()
-                .post()
-                .uri("/summarylink")
-                .bodyValue(OpenAiApiVideoSummaryRequest.of(url, type))
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(String.class).block();
-    }
-
-    public OpenAiApiTagResponse getVideoTags(String url, int type) {
-        return openAiApiWebClient
-                .mutate()
-                .build()
-                .post()
-                .uri("/tagginglink")
-                .bodyValue(OpenAiApiVideoSummaryRequest.of(url, type))
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(OpenAiApiTagResponse.class).block();
-    }
-
-    public OpenAiApiClassifyResponse checkVideoAds(String url, int type) {
-        return openAiApiWebClient
-                .mutate()
-                .build()
-                .post()
-                .uri("/adclassifylink")
-                .bodyValue(OpenAiApiVideoSummaryRequest.of(url, type))
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(OpenAiApiClassifyResponse.class).block();
-    }
 }
