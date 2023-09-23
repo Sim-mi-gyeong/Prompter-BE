@@ -180,23 +180,4 @@ public class TextService {
         }
         return "";
     }
-
-    /**
-     * 위키피디아
-     */
-    public wikipediaApiResponse getWikipediaContent(String keyword, String language) {
-        return externalRestful.getWikipediaContent(keyword, language);
-    }
-
-    /**
-     * 5회 이상 포함 시 광고로 분류
-     * 소정의 / 원고료 / 업체로부터 / 업체로
-     */
-    private boolean checkAds(String content) {
-        int cnt = 0;
-        if (content.contains("소정의") || content.contains("원고료") || content.contains("업체로") || content.contains("업체로부터")) {
-            return true;
-        }
-        return false;
-    }
 }
