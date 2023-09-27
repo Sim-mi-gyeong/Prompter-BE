@@ -55,8 +55,8 @@ public class ExternalRestful {
 
     public Flux<OpenAiApiResultResponse> getSummaryByStream(String url, int type) throws JsonProcessingException {
         return openAiApiWebClient
-//                .mutate()
-//                .build()
+                .mutate()
+                .build()
                 .post()
                 .uri("/summarysse")
                 .bodyValue(OpenAiApiTextSummaryRequest.of(url, type))
