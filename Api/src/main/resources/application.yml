@@ -44,3 +44,18 @@ client:
     enBaseUrl: https://en.wikipedia.org/w/api.php
     koPageUrl: https://ko.wikipedia.org/wiki/
     enPageUrl: https://en.wikipedia.org/wiki/
+
+#server:
+#  servlet:
+#    context-path: /api
+#  forward-headers-strategy: framework
+
+springdoc:
+#  packages-to-scan: com.colabear754.springdoc_example.controllers
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
