@@ -45,6 +45,14 @@ public class CrawlingController {
                 .map(CustomResponseEntity::success);
     }
 
+    @GetMapping(value = "/result/stream/v2", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<StreamResultResponse> getSummaryAndAnalyzedTextStreamV2(
+            @RequestParam(value = "url") String url, @RequestParam(value = "type") int type,
+            @RequestParam(value = "language", required = false) String language) throws JSONException, JsonProcessingException {
+
+        return textService.getSummaryAndAnalyzedTextStream(url, type, language);
+    }
+
     @GetMapping(value = "/result/keyword")
     public CustomResponseEntity<KeywordResponse> getKeywordsBySearch(@RequestBody @Valid KeywordRequest request) {
         return CustomResponseEntity.success(textService.getKeywordsBySearch(request));
