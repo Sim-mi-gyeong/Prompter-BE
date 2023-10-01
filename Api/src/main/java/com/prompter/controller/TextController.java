@@ -22,7 +22,6 @@ import reactor.core.publisher.Flux;
 @RestController
 public class TextController {
 
-    private final CrawlingService crawlingService;
     private final TextService textService;
 
     /**

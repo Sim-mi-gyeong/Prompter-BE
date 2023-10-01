@@ -15,7 +15,7 @@ public class KeywordDto {
 
     @Getter
     @Setter
-    @Builderㄸ
+    @Builder
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Keyword {
