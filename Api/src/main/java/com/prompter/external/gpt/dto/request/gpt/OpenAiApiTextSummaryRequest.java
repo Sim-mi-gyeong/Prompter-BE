@@ -1,5 +1,6 @@
 package com.prompter.external.gpt.dto.request.gpt;
 
+
 import lombok.Builder;
 import lombok.Getter;
 

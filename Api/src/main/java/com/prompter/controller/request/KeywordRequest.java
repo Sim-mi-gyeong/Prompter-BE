@@ -1,8 +1,8 @@
 package com.prompter.controller.request;
 
-import lombok.Getter;
 
 import java.util.List;
+import lombok.Getter;
 
 @Getter
 public class KeywordRequest {

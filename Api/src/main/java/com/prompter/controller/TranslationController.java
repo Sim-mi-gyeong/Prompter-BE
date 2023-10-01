@@ -1,5 +1,6 @@
 package com.prompter.controller;
 
+
 import com.prompter.common.CustomResponseEntity;
 import com.prompter.controller.request.TranslationRequest;
 import com.prompter.controller.response.TranslationResponse;
@@ -19,7 +20,8 @@ public class TranslationController {
     private final TranslationService translationService;
 
     @PostMapping
-    public CustomResponseEntity<TranslationResponse> translateText(@RequestBody @Valid TranslationRequest request) {
+    public CustomResponseEntity<TranslationResponse> translateText(
+            @RequestBody @Valid TranslationRequest request) {
         return CustomResponseEntity.success(translationService.translateText(request));
     }
 }

@@ -1,5 +1,6 @@
 package com.prompter.controller.request;
 
+
 import lombok.Getter;
 
 @Getter

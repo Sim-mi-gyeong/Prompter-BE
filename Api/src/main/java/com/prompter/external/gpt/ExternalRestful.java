@@ -1,21 +1,20 @@
 package com.prompter.external.gpt;
 
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.prompter.external.gpt.dto.request.gpt.OpenAiApiTextSummaryRequest;
+import com.prompter.external.gpt.dto.response.gpt.OpenAiApiResultResponse;
 import com.prompter.external.gpt.dto.response.papago.PapagoTranslationErrorResponse;
 import com.prompter.external.gpt.dto.response.papago.PapagoTranslationException;
 import com.prompter.external.gpt.dto.response.papago.PapagoTranslationResponse;
 import com.prompter.external.gpt.dto.response.search.SearchDictionaryResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.MultiValueMap;
-import reactor.core.publisher.Flux;
-
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.prompter.external.gpt.dto.request.gpt.OpenAiApiTextSummaryRequest;
-import com.prompter.external.gpt.dto.response.gpt.OpenAiApiResultResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -30,9 +29,7 @@ public class ExternalRestful {
     private final WebClient koWikipediaApiWebClient;
     private final WebClient enWikipediaApiWebClient;
 
-    /**
-     * 텍스트 관련
-     */
+    /** 텍스트 관련 */
     public OpenAiApiResultResponse getSummary(String url, int type) {
         return openAiApiWebClient
                 .mutate()
@@ -43,9 +40,10 @@ public class ExternalRestful {
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .onStatus(
-                        httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(),
-                        clientResponse -> Mono.error(new RuntimeException())
-                )
+                        httpStatusCode ->
+                                httpStatusCode.is4xxClientError()
+                                        || httpStatusCode.is5xxServerError(),
+                        clientResponse -> Mono.error(new RuntimeException()))
                 .bodyToMono(OpenAiApiResultResponse.class)
                 .flux()
                 .toStream()
@@ -53,7 +51,8 @@ public class ExternalRestful {
                 .orElse(new OpenAiApiResultResponse());
     }
 
-    public Flux<OpenAiApiResultResponse> getSummaryByStream(String url, int type) throws JsonProcessingException {
+    public Flux<OpenAiApiResultResponse> getSummaryByStream(String url, int type)
+            throws JsonProcessingException {
         return openAiApiWebClient
                 .mutate()
                 .build()
@@ -63,14 +62,10 @@ public class ExternalRestful {
                 .accept(MediaType.TEXT_EVENT_STREAM)
                 .retrieve()
                 .bodyToFlux(OpenAiApiResultResponse.class)
-                .flatMap(
-                        Flux::just
-                );
+                .flatMap(Flux::just);
     }
 
-    /**
-     * Papago 번역 API 호출
-     */
+    /** Papago 번역 API 호출 */
     public PapagoTranslationResponse translateText(MultiValueMap<String, String> map) {
         return papagoApiWebClient
                 .mutate()
@@ -80,10 +75,13 @@ public class ExternalRestful {
                 .bodyValue(map)
                 .retrieve()
                 .onStatus(
-                        httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(),
-                        clientResponse -> Mono.error(new PapagoTranslationException((PapagoTranslationErrorResponse) clientResponse))
-
-                )
+                        httpStatusCode ->
+                                httpStatusCode.is4xxClientError()
+                                        || httpStatusCode.is5xxServerError(),
+                        clientResponse ->
+                                Mono.error(
+                                        new PapagoTranslationException(
+                                                (PapagoTranslationErrorResponse) clientResponse)))
                 .bodyToMono(PapagoTranslationResponse.class)
                 .flux()
                 .toStream()
@@ -91,24 +89,25 @@ public class ExternalRestful {
                 .orElse(new PapagoTranslationResponse());
     }
 
-    /**
-     * 네이버 검색 - 백과사전 API 호출
-     */
+    /** 네이버 검색 - 백과사전 API 호출 */
     public SearchDictionaryResponse searchByDictionary(String query) {
-        return searchApiWebClient.mutate()
+        return searchApiWebClient
+                .mutate()
                 .build()
                 .get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("")
-                        .queryParam("query", query)
-                        .queryParam("display", 1)
-                        .build()
-                )
+                .uri(
+                        uriBuilder ->
+                                uriBuilder
+                                        .path("")
+                                        .queryParam("query", query)
+                                        .queryParam("display", 1)
+                                        .build())
                 .retrieve()
                 .onStatus(
-                        httpStatusCode -> httpStatusCode.is4xxClientError() || httpStatusCode.is5xxServerError(),
-                        clientResponse -> Mono.error(new RuntimeException())
-                )
+                        httpStatusCode ->
+                                httpStatusCode.is4xxClientError()
+                                        || httpStatusCode.is5xxServerError(),
+                        clientResponse -> Mono.error(new RuntimeException()))
                 .bodyToMono(SearchDictionaryResponse.class)
                 .flux()
                 .toStream()
@@ -119,12 +118,13 @@ public class ExternalRestful {
     public Flux<SearchDictionaryResponse> searchByDictionaryStream(String query) {
         return searchApiWebClient
                 .get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("")
-                        .queryParam("query", query)
-                        .queryParam("display", 1)
-                        .build()
-                )
+                .uri(
+                        uriBuilder ->
+                                uriBuilder
+                                        .path("")
+                                        .queryParam("query", query)
+                                        .queryParam("display", 1)
+                                        .build())
                 .retrieve()
                 .bodyToFlux(SearchDictionaryResponse.class)
                 .flatMap(Flux::just);

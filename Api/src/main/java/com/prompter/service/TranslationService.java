@@ -1,5 +1,6 @@
 package com.prompter.service;
 
+
 import com.prompter.controller.request.TranslationRequest;
 import com.prompter.controller.response.TranslationResponse;
 import com.prompter.external.gpt.ExternalRestful;
@@ -24,9 +25,8 @@ public class TranslationService {
 
         PapagoTranslationResponse clientResponse = externalRestful.translateText(map);
         return TranslationResponse.of(
-                clientResponse.getMessage().getResult().getSrcLangType()
-                , clientResponse.getMessage().getResult().getTarLangType()
-                , clientResponse.getMessage().getResult().getTranslatedText()
-        );
+                clientResponse.getMessage().getResult().getSrcLangType(),
+                clientResponse.getMessage().getResult().getTarLangType(),
+                clientResponse.getMessage().getResult().getTranslatedText());
     }
 }

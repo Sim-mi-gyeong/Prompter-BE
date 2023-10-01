@@ -1,5 +1,6 @@
 package com.prompter.external.gpt.dto.request.gpt;
 
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -10,9 +11,6 @@ public class OpenAiApiVideoSummaryRequest {
     private int type;
 
     public static OpenAiApiVideoSummaryRequest of(String url, int type) {
-        return OpenAiApiVideoSummaryRequest.builder()
-                .text(url)
-                .type(type)
-                .build();
+        return OpenAiApiVideoSummaryRequest.builder().text(url).type(type).build();
     }
 }

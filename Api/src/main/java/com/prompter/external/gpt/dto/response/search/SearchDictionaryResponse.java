@@ -1,8 +1,8 @@
 package com.prompter.external.gpt.dto.response.search;
 
-import lombok.Getter;
 
 import java.util.List;
+import lombok.Getter;
 
 @Getter
 public class SearchDictionaryResponse {

@@ -1,12 +1,10 @@
 package com.prompter.controller.response;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
-import java.util.stream.Stream;
 
 @Getter
 @Builder
@@ -15,21 +13,18 @@ import java.util.stream.Stream;
 public class SummaryResponse {
 
     private String summaryContent;
-//    private List<String> tags;
-//    private List<Stream<Object>> tags;
+    //    private List<String> tags;
+    //    private List<Stream<Object>> tags;
 
-//    public static SummaryResponse of(String summaryContent, List<Stream<Object>> tags) {
-//        return SummaryResponse
-//                .builder()
-//                .summaryContent(summaryContent)
-////                .tags(tags)
-//                .build();
-//    }
+    //    public static SummaryResponse of(String summaryContent, List<Stream<Object>> tags) {
+    //        return SummaryResponse
+    //                .builder()
+    //                .summaryContent(summaryContent)
+    ////                .tags(tags)
+    //                .build();
+    //    }
 
     public static SummaryResponse of(String summaryContent) {
-        return SummaryResponse
-                .builder()
-                .summaryContent(summaryContent)
-                .build();
+        return SummaryResponse.builder().summaryContent(summaryContent).build();
     }
 }

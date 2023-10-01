@@ -1,5 +1,6 @@
 package com.prompter.common;
 
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -18,7 +19,8 @@ public class CommonRestExceptionHandler extends RuntimeException {
 
     @ResponseBody
     @ExceptionHandler(Exception.class)
-    public CustomResponseEntity<String> handleExceptionHandler(HttpServletRequest request, Exception e) {
+    public CustomResponseEntity<String> handleExceptionHandler(
+            HttpServletRequest request, Exception e) {
         log.error("defaultExceptionHandler", e);
         return CustomResponseEntity.fail(Result.FAIL);
     }
@@ -26,20 +28,21 @@ public class CommonRestExceptionHandler extends RuntimeException {
     @ResponseBody
     @ExceptionHandler(CustomException.class)
     public CustomResponseEntity<String> handleCustomExceptionHandler(CustomException exception) {
-        log.error("CustomExceptionHandler code : {}, message : {}",
-                exception.getResult().getCode(), exception.getResult().getMessage());
+        log.error(
+                "CustomExceptionHandler code : {}, message : {}",
+                exception.getResult().getCode(),
+                exception.getResult().getMessage());
         return CustomResponseEntity.fail(exception.getResult());
     }
 
     @ResponseBody
-    @ExceptionHandler(
-            MethodArgumentNotValidException.class
-    )
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public CustomResponseEntity<Object> handleBadRequest(
-            MethodArgumentNotValidException e, HttpServletRequest request
-    ) {
-        log.error("url {}, message: {}",
-                request.getRequestURI(), e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
+            MethodArgumentNotValidException e, HttpServletRequest request) {
+        log.error(
+                "url {}, message: {}",
+                request.getRequestURI(),
+                e.getBindingResult().getAllErrors().get(0).getDefaultMessage());
 
         return CustomResponseEntity.builder()
                 .code(-1)
@@ -48,14 +51,13 @@ public class CommonRestExceptionHandler extends RuntimeException {
     }
 
     @ResponseBody
-    @ExceptionHandler(
-            MissingServletRequestParameterException.class
-    )
+    @ExceptionHandler(MissingServletRequestParameterException.class)
     public CustomResponseEntity<Object> handleBadRequest(
-            MissingServletRequestParameterException e, HttpServletRequest request
-    ) {
-        log.error("url {}, message: {}",
-                request.getRequestURI(), e.getParameterName() + " 값이 등록되지 않았습니다.");
+            MissingServletRequestParameterException e, HttpServletRequest request) {
+        log.error(
+                "url {}, message: {}",
+                request.getRequestURI(),
+                e.getParameterName() + " 값이 등록되지 않았습니다.");
         return CustomResponseEntity.builder()
                 .code(-1)
                 .message(e.getParameterName() + " 값이 등록되지 않았습니다.")
@@ -63,17 +65,16 @@ public class CommonRestExceptionHandler extends RuntimeException {
     }
 
     @ResponseBody
-    @ExceptionHandler(
-            MissingServletRequestPartException.class
-    )
+    @ExceptionHandler(MissingServletRequestPartException.class)
     public CustomResponseEntity<Object> handleBadRequest(
-            MissingServletRequestPartException e, HttpServletRequest request
-    ) {
-        log.error("url {}, message: {}",
-                request.getRequestURI(), e.getRequestPartName() + " 값을 요청받지 못했습니다.");
+            MissingServletRequestPartException e, HttpServletRequest request) {
+        log.error(
+                "url {}, message: {}",
+                request.getRequestURI(),
+                e.getRequestPartName() + " 값을 요청받지 못했습니다.");
         return CustomResponseEntity.builder()
                 .code(-1)
-                .message("{ " + e.getRequestPartName() + " }"+ " 값을 요청받지 못했습니다.")
+                .message("{ " + e.getRequestPartName() + " }" + " 값을 요청받지 못했습니다.")
                 .build();
     }
 }

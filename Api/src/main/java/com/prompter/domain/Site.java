@@ -1,5 +1,6 @@
 package com.prompter.domain;
 
+
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

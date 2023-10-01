@@ -1,5 +1,6 @@
 package com.prompter.controller.response;
 
+
 import lombok.Builder;
 import lombok.Getter;
 
@@ -8,8 +9,7 @@ import lombok.Getter;
 public class CrawlingResponse {
     private final String content;
 
-    public static CrawlingResponse from(String content){
-        return CrawlingResponse
-                .builder().content(content).build();
+    public static CrawlingResponse from(String content) {
+        return CrawlingResponse.builder().content(content).build();
     }
 }

@@ -1,5 +1,6 @@
 package com.prompter.common;
 
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

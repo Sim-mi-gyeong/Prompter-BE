@@ -1,25 +1,24 @@
 package com.prompter.service;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.prompter.controller.request.KeywordRequest;
 import com.prompter.controller.response.KeywordResponse;
+import com.prompter.controller.response.ResultResponse;
 import com.prompter.controller.response.StreamResultResponse;
 import com.prompter.external.gpt.ExternalRestful;
 import com.prompter.external.gpt.dto.response.gpt.OpenAiApiResultResponse;
-import com.prompter.controller.response.ResultResponse;
 import com.prompter.external.gpt.dto.response.search.SearchDictionaryResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.ObjectUtils;
-import reactor.core.publisher.Flux;
-
-import org.json.JSONException;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import reactor.core.publisher.Flux;
 
 @Service
 @Slf4j
@@ -32,8 +31,7 @@ public class TextService {
     private static final Double PERCENT_RULE_BASE = 59.5;
 
     public List<ResultResponse.Keyword> getKeywords(String tags) {
-        return Arrays.stream(tags.split(","))
-                .map(this::createKeyword).collect(Collectors.toList());
+        return Arrays.stream(tags.split(",")).map(this::createKeyword).collect(Collectors.toList());
     }
 
     public List<Flux<StreamResultResponse.Keyword>> getKeywordsByStream(String tags) {
@@ -42,7 +40,8 @@ public class TextService {
                 .collect(Collectors.toList());
     }
 
-    public ResultResponse getSummaryAndAnalyzedText(String url, int type, String language) throws JSONException {
+    public ResultResponse getSummaryAndAnalyzedText(String url, int type, String language)
+            throws JSONException {
 
         OpenAiApiResultResponse clientResponse = getSummaryResponse(url, type);
 
@@ -50,10 +49,13 @@ public class TextService {
 
         // Rule Base 광고 분류 적용
         boolean classifyAdsYn = clientResponse.getAdYn().equals("O");
-        return ResultResponse.of(clientResponse.getTitle(),
-                clientResponse.getSummary(), Arrays.asList(clientResponse.getTags().split(",")), keywords,
-                calculatePercentByAi(classifyAdsYn) + calculatePercentByRule(clientResponse.getContent())
-            );
+        return ResultResponse.of(
+                clientResponse.getTitle(),
+                clientResponse.getSummary(),
+                Arrays.asList(clientResponse.getTags().split(",")),
+                keywords,
+                calculatePercentByAi(classifyAdsYn)
+                        + calculatePercentByRule(clientResponse.getContent()));
     }
 
     public double calculatePercentByAi(boolean flag) {
@@ -63,9 +65,15 @@ public class TextService {
 
     // [‘소정의‘, ‘원고료‘, ‘지원받아‘, ‘업체로부터‘, ‘업체에게‘, ‘광고‘, ‘유료광고‘, ‘협찬’]
     public double calculatePercentByRule(String content) {
-        if (content.contains("소정의") || content.contains("원고료") || content.contains("수수료") || content.contains("지원받아") || content.contains("업체로부터")
-            || content.contains("업체에게") || content.contains("광고") || content.contains("유료광고") || content.contains("협찬")
-        ) {
+        if (content.contains("소정의")
+                || content.contains("원고료")
+                || content.contains("수수료")
+                || content.contains("지원받아")
+                || content.contains("업체로부터")
+                || content.contains("업체에게")
+                || content.contains("광고")
+                || content.contains("유료광고")
+                || content.contains("협찬")) {
             return PERCENT_RULE_BASE;
         }
         return 0.0;
@@ -76,45 +84,44 @@ public class TextService {
         return externalRestful.getSummary(url, type);
     }
 
-    public Flux<StreamResultResponse> getSummaryAndAnalyzedTextStream(String url, int type, String language) throws JsonProcessingException {
+    public Flux<StreamResultResponse> getSummaryAndAnalyzedTextStream(
+            String url, int type, String language) throws JsonProcessingException {
 
-        return externalRestful.getSummaryByStream(url, type)
+        return externalRestful
+                .getSummaryByStream(url, type)
                 .flatMap(
-                        response -> Flux.just(
-                                StreamResultResponse.of(
-                                        response.getTitle(), response.getSummary()
-                                        , Arrays.asList(response.getTags().split(",")), getKeywordsByStream(response.getTags())
-                                        , calculatePercentByAi(response.getAdYn().equals("O")) + calculatePercentByRule(response.getContent())
-                                )
-                            )
-                );
+                        response ->
+                                Flux.just(
+                                        StreamResultResponse.of(
+                                                response.getTitle(),
+                                                response.getSummary(),
+                                                Arrays.asList(response.getTags().split(",")),
+                                                getKeywordsByStream(response.getTags()),
+                                                calculatePercentByAi(response.getAdYn().equals("O"))
+                                                        + calculatePercentByRule(
+                                                                response.getContent()))));
     }
 
-    /**
-     * 네이버 검색 - 백과사전
-     */
+    /** 네이버 검색 - 백과사전 */
     public ResultResponse.Keyword createKeyword(String tag) {
         SearchDictionaryResponse searchDictionaryResponse = searchByDictionary(tag);
         return new ResultResponse.Keyword(
                 tag.replace(" ", ""),
                 getDescription(searchDictionaryResponse),
-                getLink(searchDictionaryResponse)
-        );
+                getLink(searchDictionaryResponse));
     }
 
     public Flux<StreamResultResponse.Keyword> createKeywordByStream(String tag) {
-        return externalRestful.searchByDictionaryStream(tag)
+        return externalRestful
+                .searchByDictionaryStream(tag)
                 .flatMap(
                         response -> {
                             return Flux.just(
                                     new StreamResultResponse.Keyword(
-                                        tag.replace(" ", ""),
-                                        getDescription(response),
-                                        getLink(response)
-                                    )
-                            );
-                        }
-                );
+                                            tag.replace(" ", ""),
+                                            getDescription(response),
+                                            getLink(response)));
+                        });
     }
 
     public SearchDictionaryResponse searchByDictionary(String keyword) {
@@ -139,10 +146,10 @@ public class TextService {
 
         return new KeywordResponse(
                 request.getTags().stream()
-                        .map(tag -> new KeywordResponse.Keyword(
-                                        createKeyword(tag.replace(" ", "")))
-                            ).collect(Collectors.toList()
-                        )
-        );
+                        .map(
+                                tag ->
+                                        new KeywordResponse.Keyword(
+                                                createKeyword(tag.replace(" ", ""))))
+                        .collect(Collectors.toList()));
     }
 }

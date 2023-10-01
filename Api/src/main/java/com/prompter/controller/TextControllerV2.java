@@ -1,9 +1,8 @@
 package com.prompter.controller;
 
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.prompter.common.CustomResponseEntity;
 import com.prompter.controller.response.StreamResultResponse;
-import com.prompter.service.CrawlingService;
 import com.prompter.service.TextService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -25,15 +24,16 @@ public class TextControllerV2 {
 
     /**
      * URL 에 해당하는 사이트 텍스트 내용 요약 및 분석 결과
+     *
      * @return
      */
     @GetMapping(value = "/result/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<StreamResultResponse> getSummaryAndAnalyzedTextStream(
-            @RequestParam(value = "url") String url, @RequestParam(value = "type") int type,
-            @RequestParam(value = "language", required = false) String language) throws JSONException, JsonProcessingException {
+            @RequestParam(value = "url") String url,
+            @RequestParam(value = "type") int type,
+            @RequestParam(value = "language", required = false) String language)
+            throws JSONException, JsonProcessingException {
 
         return textService.getSummaryAndAnalyzedTextStream(url, type, language);
     }
 }
-
-

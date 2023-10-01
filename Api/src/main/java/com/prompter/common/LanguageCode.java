@@ -1,10 +1,10 @@
 package com.prompter.common;
 
+
 import lombok.Getter;
 
 @Getter
 public enum LanguageCode {
-
     KO(0, "ko"),
     EN(1, "en");
 

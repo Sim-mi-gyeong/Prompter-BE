@@ -1,12 +1,11 @@
 package com.prompter.controller.response;
 
+
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
-import java.util.Optional;
 
 @Getter
 @Builder
@@ -28,9 +27,13 @@ public class ResultResponse {
         private String wikiUrl;
     }
 
-    public static ResultResponse of(String title, String summaryContent, List<String> tags, List<Keyword> keywords, double adsPercent) {
-        return ResultResponse
-                .builder()
+    public static ResultResponse of(
+            String title,
+            String summaryContent,
+            List<String> tags,
+            List<Keyword> keywords,
+            double adsPercent) {
+        return ResultResponse.builder()
                 .title(title)
                 .summaryContent(summaryContent)
                 .tags(tags)

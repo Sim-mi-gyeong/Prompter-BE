@@ -1,5 +1,6 @@
 package com.prompter.external.gpt.dto.response.gpt;
 
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
