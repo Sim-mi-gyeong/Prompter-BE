@@ -9,6 +9,7 @@ import com.prompter.controller.response.StreamResultResponse;
 import com.prompter.service.CrawlingService;
 
 import com.prompter.service.TextService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -17,10 +18,11 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
+@Tag(name = "요약/광고 분류/추천 관련 API", description = "Checky 서비스 메인 API")
 @RequiredArgsConstructor
 @RequestMapping("/crawling")
 @RestController
-public class CrawlingController {
+public class TextController {
 
     private final CrawlingService crawlingService;
     private final TextService textService;
@@ -43,14 +45,6 @@ public class CrawlingController {
 
         return textService.getSummaryAndAnalyzedTextStream(url, type, language)
                 .map(CustomResponseEntity::success);
-    }
-
-    @GetMapping(value = "/result/stream/v2", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<StreamResultResponse> getSummaryAndAnalyzedTextStreamV2(
-            @RequestParam(value = "url") String url, @RequestParam(value = "type") int type,
-            @RequestParam(value = "language", required = false) String language) throws JSONException, JsonProcessingException {
-
-        return textService.getSummaryAndAnalyzedTextStream(url, type, language);
     }
 
     @GetMapping(value = "/result/keyword")
