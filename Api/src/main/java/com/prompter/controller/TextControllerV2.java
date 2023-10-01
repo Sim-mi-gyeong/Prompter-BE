@@ -28,12 +28,11 @@ public class TextControllerV2 {
      * @return
      */
     @GetMapping(value = "/result/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<CustomResponseEntity<StreamResultResponse>> getSummaryAndAnalyzedTextStream(
+    public Flux<StreamResultResponse> getSummaryAndAnalyzedTextStream(
             @RequestParam(value = "url") String url, @RequestParam(value = "type") int type,
             @RequestParam(value = "language", required = false) String language) throws JSONException, JsonProcessingException {
 
-        return textService.getSummaryAndAnalyzedTextStream(url, type, language)
-                .map(CustomResponseEntity::success);
+        return textService.getSummaryAndAnalyzedTextStream(url, type, language);
     }
 }
 
